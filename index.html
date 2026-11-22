@@ -109,6 +109,8 @@
   .bnum{font-size:13px;font-weight:700}
   .blab{font-size:11px;color:var(--ink2);margin-top:2px}
   a.btn{text-decoration:none}
+  .toprow{margin-bottom:14px}
+  .toprow .btn{padding:13px 8px}
 </style>
 </head>
 <body>
@@ -131,7 +133,7 @@
 
 <script>
 'use strict';
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.2.3';
 
 /* ===== 基本工具 ===== */
 const LS = { data: 'et:data', queue: 'et:queue', set: 'et:settings', plan: 'et:plan', lastPull: 'et:lastPull', pending: 'et:pending' };
@@ -171,7 +173,7 @@ let toastT;
 function toast(msg, ms = 2200) { const t = $('#toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = 'none', ms); }
 
 /* ===== 狀態 ===== */
-const S = Object.assign({ gasUrl: '', token: '', provider: 'openai', daily: 5, dailyWords: 3, rate: 0.85, level: 'A2', levelAskAfter: '' }, jget(LS.set, {}));
+const S = Object.assign({ gasUrl: '', token: '', provider: 'openai', daily: 5, dailyWords: 3, rate: 0.85, level: 'A2', levelAskAfter: '', voiceSrc: 'ai' }, jget(LS.set, {}));
 const D = Object.assign({ sentences: {}, patterns: {}, words: {}, logs: {} }, jget(LS.data, {}));
 SHEETS.forEach(k => { D[k] = D[k] || {}; });
 let Q = jget(LS.queue, []);
@@ -374,27 +376,84 @@ function pickVoice(lang) {
   return voices.find(v => normLang(v) === L && /google/i.test(v.name)) || voices.find(v => normLang(v) === L) || voices.find(v => normLang(v).startsWith('en'));
 }
 let speakTimer;
-function speak(text, lang = 'en-US') {
+function speakDevice(text, lang = 'en-US', retry = false) {
   const ss = window.speechSynthesis;
   if (!ss) { toast('這個瀏覽器不支援語音'); return; }
-  if (!text) return;
   if (!voices.length) loadVoices();
   const go = () => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
-    const v = pickVoice(lang);
+    const v = retry ? null : pickVoice(lang);
     if (v) u.voice = v;
     u.rate = Number(S.rate) || 1;
     let started = false;
     u.onstart = () => { started = true; };
-    u.onerror = e => { if (e.error !== 'interrupted' && e.error !== 'canceled') toast('語音播放失敗：' + e.error + '（請檢查媒體音量和手機的文字轉語音設定）', 4500); };
+    u.onerror = e => {
+      if (e.error === 'interrupted' || e.error === 'canceled') return;
+      if (!retry && v) return speakDevice(text, lang, true);   // 指定語音失敗 → 改用預設語音再念一次
+      toast('手機語音播放失敗：' + e.error + '（可到設定把發音來源改成 AI 語音）', 4500);
+    };
     ss.resume();
     ss.speak(u);
-    setTimeout(() => { if (!started && !ss.speaking) toast('沒有聲音？請確認媒體音量，以及手機「文字轉語音」有下載英文語音', 4500); }, 2500);
+    setTimeout(() => { if (!started && !ss.speaking && !retry) toast('沒有聲音？請確認媒體音量，或到設定把發音來源改成 AI 語音', 4500); }, 2500);
   };
   clearTimeout(speakTimer);
   if (ss.speaking || ss.pending) { ss.cancel(); speakTimer = setTimeout(go, 150); }
   else go();
+}
+
+/* AI 語音：先找手機快取 → 再向 GAS 要（GAS 會先找雲端硬碟，沒有才產生） */
+const audioEl = new Audio();
+let audioUrl = '', audioSeq = 0;
+function idb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('et-audio', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('a');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function idbGet(k) { try { const db = await idb(); return await new Promise(res => { const q = db.transaction('a').objectStore('a').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); } catch (e) { return null; } }
+async function idbPut(k, v) { try { const db = await idb(); db.transaction('a', 'readwrite').objectStore('a').put(v, k); } catch (e) {} }
+const b64ToBlob = b64 => { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], { type: 'audio/mpeg' }); };
+
+async function getAIAudio(text, accent) {
+  const k = accent + '|' + text;
+  let blob = await idbGet(k);
+  if (!blob) {
+    const j = await api('tts', { text, accent });
+    blob = b64ToBlob(j.audio);
+    idbPut(k, blob);
+  }
+  return blob;
+}
+
+async function playAI(text, accent) {
+  const seq = ++audioSeq;
+  audioEl.pause();
+  const slow = setTimeout(() => { if (seq === audioSeq) toast('產生語音中…', 1500); }, 700);
+  try {
+    const blob = await getAIAudio(text, accent);
+    if (seq !== audioSeq) return;
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    audioUrl = URL.createObjectURL(blob);
+    audioEl.src = audioUrl;
+    audioEl.playbackRate = Number(S.rate) || 1;
+    await audioEl.play();
+  } finally { clearTimeout(slow); }
+}
+
+function speak(text, lang = 'en-US') {
+  if (!text) return;
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (S.voiceSrc === 'ai' && S.gasUrl && S.token) {
+    playAI(text, lang === 'en-GB' ? 'uk' : 'us').catch(e => { console.warn('AI 語音', e); speakDevice(text, lang); });
+  } else speakDevice(text, lang);
+}
+
+/* 存句子後，背景先把語音準備好（之後沒網路也能聽） */
+function prefetchAudio(text) {
+  if (S.voiceSrc !== 'ai' || !S.gasUrl || !navigator.onLine || !text) return;
+  setTimeout(() => getAIAudio(text, 'us').catch(() => {}), 1500);
 }
 const spkBtn = (t, lang) => `<button class="spk" data-speak="${esc(t)}"${lang ? ` data-lang="${lang}"` : ''} aria-label="播放">🔊</button>`;
 const tipHtml = t => t ? `<div class="tip">💡 ${esc(t)}</div>` : '';
@@ -467,7 +526,12 @@ function matchCard() {
 
 function resultCard() {
   const dup = tr.enDup && D.sentences[tr.enDup] && D.sentences[tr.enDup].deleted !== '1' ? D.sentences[tr.enDup] : null;
-  let h = `<div class="card">`;
+  let h = `<div class="card">
+    <div class="row toprow">
+      <button class="btn green" id="btnSave" style="flex:1.4">儲存</button>
+      <button class="btn sec" id="btnKnown">我會了</button>
+      <button class="btn orange" id="btnSimpler" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span>' : '太難了'}</button>
+    </div>`;
   if (dup) h += `<div class="notice">這句英文你已經存過（想到 ${dup.hits} 次）。按儲存會合併成同一張卡，並記下這次的中文說法。</div>`;
   h += `<div class="line"><div class="txt">${enHtml(tr.main)}</div>${spkBtn(tr.main)}</div>${tipHtml(tr.tip)}
     <div class="sub small" style="margin-top:6px">點英文單字可以查字典、存單字</div>`;
@@ -483,12 +547,7 @@ function resultCard() {
   }
   if (!dup) h += `<label class="f">母句型（可修改，沒有就留空）</label>
           <input id="patIn" value="${esc(tr.pattern)}" placeholder="例如：I'm heading to ___.">`;
-  h += `<div class="row" style="margin-top:14px">
-      <button class="btn orange" id="btnSimpler" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span>' : '太難了'}</button>
-      <button class="btn sec" id="btnKnown">我會了</button>
-    </div>
-    <button class="btn green" id="btnSave" style="margin-top:10px">儲存</button>
-    <div class="sub small" style="margin-top:8px">「太難了」：重翻成更簡單的說法　「我會了」：存進熟悉區，不排複習</div>
+  h += `<div class="sub small" style="margin-top:10px">「我會了」：存進熟悉區，不排複習　「太難了」：重翻成更簡單的說法</div>
   </div>`;
   return h;
 }
@@ -556,7 +615,7 @@ function saveTranslation(known) {
   } else {
     const pid = resolvePattern($('#patIn') ? $('#patIn').value : '', tr.main);
     const m = newSentence(tr.zh, tr.main, '', pid, tr.tip, known);
-    put('sentences', m);
+    put('sentences', m); prefetchAudio(m.en);
     if (wantAlt) put('sentences', newSentence(tr.zh, tr.alt, m.id, '', '', known));
     msg = known ? '已存進熟悉區' : '已儲存，明天開始複習';
   }
@@ -592,7 +651,7 @@ function clipView() {
   </div>`;
   if (!clip) return h + `<div class="empty">短影音、電影、同事講的好用英文<br><span class="small">貼進來，AI 補中文、什麼時候用</span></div>`;
   const dup = findByEn(clip.en);
-  h += `<div class="card">`;
+  h += `<div class="card"><div class="row toprow"><button class="btn green" id="btnClipSave" style="flex:1.4">儲存</button><button class="btn sec" id="btnClipKnown">我會了</button></div>`;
   if (dup) h += `<div class="notice">這句你已經存過（想到 ${dup.hits} 次），儲存會合併成同一張卡。</div>`;
   h += `<div class="line"><div class="txt">${enHtml(clip.en)}</div>${spkBtn(clip.en)}</div>
     <div class="zh">${esc(clip.zh)}</div>
@@ -606,7 +665,7 @@ function clipView() {
       <div class="txt"><div class="sub">建議說法（勾選一起存）</div><div class="en2">${esc(clip.suggestion)}</div></div></label>${spkBtn(clip.suggestion)}</div>`;
   }
   if (!dup) h += `<label class="f">母句型（可修改，沒有就留空）</label><input id="patIn" value="${esc(clip.pattern)}">`;
-  h += `<div class="row" style="margin-top:14px"><button class="btn sec" id="btnClipKnown">我會了</button><button class="btn green" id="btnClipSave">儲存</button></div></div>`;
+  h += `</div>`;
   return h;
 }
 
@@ -631,7 +690,7 @@ function saveClip(known) {
     const pid = resolvePattern($('#patIn') ? $('#patIn').value : '', clip.en);
     const s = newSentence(clip.zh, clip.en, '', pid, clip.tip, known, 'clip');
     Object.assign(s, { note: clip.note, usage: clip.usage, original: clip.en });
-    put('sentences', s);
+    put('sentences', s); prefetchAudio(s.en);
     if (clip.suggestion && $('#ckSug') && $('#ckSug').checked) {
       const a = newSentence(clip.zh, clip.suggestion, s.id, '', '', known, 'clip');
       put('sentences', a);
@@ -651,7 +710,7 @@ function pracView() {
     <div class="sub small" style="margin-top:8px">外國人聽得懂就算對，只改會造成誤會的地方</div>
   </div>`;
   if (!prac) return h;
-  h += `<div class="card">`;
+  h += `<div class="card"><div class="row toprow"><button class="btn green" id="btnPracSave" style="flex:1.4">儲存勾選的句子</button><button class="btn sec" id="btnPracAgain">再寫一次</button></div>`;
   prac.items.forEach((it, i) => {
     const icon = it.status === 'ok' ? '<span class="tag g">✓ 自然，可以用</span>'
       : it.status === 'grammar' ? '<span class="tag o">✎ 文法要改</span>' : '<span class="tag">✎ 可以更自然</span>';
@@ -665,7 +724,7 @@ function pracView() {
       <label class="tap" style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" class="chk" data-pi="${i}" ${it.saved ? 'disabled checked' : ''}> ${it.saved ? '已存' : '存進句子庫'}</label>
     </div>`;
   });
-  h += `<div class="row" style="margin-top:12px"><button class="btn sec" id="btnPracAgain">再寫一次</button><button class="btn green" id="btnPracSave">儲存勾選的句子</button></div></div>`;
+  h += `</div>`;
   return h;
 }
 
@@ -702,12 +761,34 @@ function savePractice() {
     else {
       const s = newSentence(it.zh, en, '', pat ? pat.id : '', '', false, 'practice');
       Object.assign(s, { original: it.original, note: it.explain });
-      put('sentences', s);
+      put('sentences', s); prefetchAudio(s.en);
     }
     it.saved = true; n++;
   });
   renderTranslate();
   toast(`已存 ${n} 句，明天開始複習`);
+}
+
+/* ----- 還沒存的提醒 ----- */
+let guardNext = null;
+function unsavedKind() { if (tab === 'translate' && trMode === 'result' && tr) return 'tr'; if (tab === 'translate' && clip) return 'clip'; return ''; }
+function guard(next) {
+  const k = unsavedKind();
+  if (!k) return next();
+  guardNext = next;
+  const en = k === 'tr' ? tr.main : clip.en;
+  openSheet(`<h2>這句還沒存</h2>
+    <div class="en2" style="margin:10px 0 4px">${esc(en)}</div>
+    <div class="sub">${esc(k === 'tr' ? tr.zh : clip.zh)}</div>
+    <button class="btn green" id="gSave" style="margin-top:16px">存起來</button>
+    <div class="row" style="margin-top:10px"><button class="btn sec" id="gSkip">不用存</button><button class="btn sec" id="gBack">返回</button></div>`);
+}
+function guardResolve(save) {
+  const k = unsavedKind(), next = guardNext; guardNext = null;
+  closeSheet();
+  if (save) { if (k === 'tr') saveTranslation(false); else if (k === 'clip') saveClip(false); }
+  else { tr = null; mt = null; trMode = 'input'; clip = null; }
+  if (next) next();
 }
 
 /* ===== 單字 ===== */
@@ -1154,6 +1235,8 @@ function openSettings() {
     <select id="sProv">${opt('openai', 'OpenAI（ChatGPT）', S.provider)}${opt('gemini', 'Gemini', S.provider)}${opt('claude', 'Claude', S.provider)}</select>
     <div class="row"><div><label class="f">每天複習句子</label><input id="sDaily" type="number" min="1" max="50" value="${S.daily}"></div>
       <div><label class="f">每天複習單字</label><input id="sDailyW" type="number" min="0" max="30" value="${S.dailyWords}"></div></div>
+    <label class="f">發音來源</label>
+    <select id="sVoice">${opt('ai', 'AI 語音（建議，自然美式發音）', S.voiceSrc)}${opt('device', '手機語音', S.voiceSrc)}</select>
     <label class="f">發音語速</label>
     <select id="sRate">${opt('0.85', '慢（0.85x）', S.rate)}${opt('1', '正常（1.0x）', S.rate)}</select>
     <button class="btn" id="sSave" style="margin-top:18px">儲存設定</button>
@@ -1165,7 +1248,7 @@ function openSettings() {
     S.gasUrl = $('#sUrl').value.trim(); S.token = $('#sTok').value.trim(); S.provider = $('#sProv').value; S.level = $('#sLevel').value;
     S.daily = Math.max(1, Math.min(50, parseInt($('#sDaily').value, 10) || 5));
     S.dailyWords = Math.max(0, Math.min(30, parseInt($('#sDailyW').value, 10) || 0));
-    S.rate = Number($('#sRate').value);
+    S.rate = Number($('#sRate').value); S.voiceSrc = $('#sVoice').value;
     saveSettings(); updateBadge();
   };
   $('#sSave').onclick = () => { read(); closeSheet(); toast('已儲存'); pull(true); flush(); render(); };
@@ -1229,11 +1312,13 @@ document.addEventListener('click', e => {
   if (!t) { if (e.target.id === 'overlay') closeSheet(); return; }
   if (t.dataset.speak !== undefined) return speak(t.dataset.speak, t.dataset.lang || 'en-US');
   if (t.dataset.tab) {
-    tab = t.dataset.tab; revealed = false; render(); window.scrollTo(0, 0);
-    if (tab === 'translate' && trSeg === 'zh' && trMode === 'input' && $('#zhIn')) $('#zhIn').focus();
-    return;
+    const to = t.dataset.tab;
+    return guard(() => {
+      tab = to; revealed = false; render(); window.scrollTo(0, 0);
+      if (tab === 'translate' && trSeg === 'zh' && trMode === 'input' && $('#zhIn')) $('#zhIn').focus();
+    });
   }
-  if (t.dataset.trseg) { trSeg = t.dataset.trseg; return renderTranslate(); }
+  if (t.dataset.trseg) { const to = t.dataset.trseg; return guard(() => { trSeg = to; renderTranslate(); }); }
   if (t.dataset.seg) { mineSeg = t.dataset.seg; mineSearch = ''; return renderMine(); }
   if (t.dataset.period) { statPeriod = t.dataset.period; return renderMineList(); }
   if (t.dataset.edit) { closeSheet(); return openSentence(t.dataset.edit); }
@@ -1242,8 +1327,7 @@ document.addEventListener('click', e => {
   if (t.dataset.close !== undefined) return closeSheet();
   if (t.dataset.pend) {
     const p = P.find(x => x.id === t.dataset.pend); if (!p) return;
-    P = P.filter(x => x.id !== p.id); savePending();
-    return doTranslate(p.zh);
+    return guard(() => { P = P.filter(x => x.id !== p.id); savePending(); doTranslate(p.zh); });
   }
   if (t.dataset.delpend) { P = P.filter(x => x.id !== t.dataset.delpend); savePending(); return renderTranslate(); }
   if (t.dataset.mgrade) return matchGrade(t.dataset.mgrade === '1');
@@ -1254,7 +1338,10 @@ document.addEventListener('click', e => {
   }
   if (t.dataset.lvup) { S.level = t.dataset.lvup; S.levelAskAfter = addDays(today(), 21); saveSettings(); toast('已升到 ' + LEVEL_ZH[S.level]); return render(); }
   switch (t.id) {
-    case 'btnTr': return busy ? null : doTranslate();
+    case 'btnTr': { if (busy) return; const z = $('#zhIn').value; return guard(() => doTranslate(z)); }
+    case 'gSave': return guardResolve(true);
+    case 'gSkip': return guardResolve(false);
+    case 'gBack': guardNext = null; return closeSheet();
     case 'btnSave': return saveTranslation(false);
     case 'btnKnown': return saveTranslation(true);
     case 'btnSimpler': return busy ? null : doSimpler();
@@ -1267,11 +1354,15 @@ document.addEventListener('click', e => {
       setBusy(true);
       return runTranslate(zh, false).catch(err => { if (err.offline) addPending(zh); else toast(err.message, 4000); }).finally(() => setBusy(false));
     }
-    case 'btnClear': resetTranslate(); $('#zhIn').focus(); return;
-    case 'btnClip': return busy ? null : doClip();
+    case 'btnClear': return guard(() => { resetTranslate(); $('#zhIn').focus(); });
+    case 'btnClip': {
+      if (busy) return;
+      const en = $('#clipEn').value, zh = $('#clipZh').value;
+      return guard(() => { clipDraft = { en, zh }; renderTranslate(); doClip(); });
+    }
     case 'btnClipSave': return saveClip(false);
     case 'btnClipKnown': return saveClip(true);
-    case 'btnClipClear': clip = null; clipDraft = { en: '', zh: '' }; renderTranslate(); $('#clipEn').focus(); return;
+    case 'btnClipClear': return guard(() => { clip = null; clipDraft = { en: '', zh: '' }; renderTranslate(); $('#clipEn').focus(); });
     case 'btnPrac': return busy ? null : doPractice();
     case 'btnPracSave': return savePractice();
     case 'btnPracAgain': case 'btnPracClear': prac = null; pracDraft = ''; renderTranslate(); $('#pracIn').focus(); return;
