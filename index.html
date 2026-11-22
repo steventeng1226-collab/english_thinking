@@ -88,7 +88,9 @@
   .spk.gray{background:#eef1f7;color:var(--ink)}
   .spk.sm{width:34px;height:34px;flex:0 0 34px;font-size:16px;vertical-align:middle}
   .seg5 button{font-size:15px;padding:9px 2px}
-  .w{cursor:pointer;border-bottom:1.5px dotted #8a97b5}
+  .ws,.w{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+  .w{cursor:pointer;border-bottom:1.5px dotted #8a97b5;border-radius:4px}
+  .w:active{background:var(--blue-l)}
   .w.sel{background:#ffe08a;border-radius:4px}
   .wordhead{font-size:32px;font-weight:800;color:var(--blue-d);margin-top:4px}
   .ctxbox{background:#fff6d6;border:1.5px solid #e6c34a;border-radius:12px;padding:10px 12px;margin:8px 0}
@@ -129,7 +131,7 @@
 
 <script>
 'use strict';
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.2.1';
 
 /* ===== 基本工具 ===== */
 const LS = { data: 'et:data', queue: 'et:queue', set: 'et:settings', plan: 'et:plan', lastPull: 'et:lastPull', pending: 'et:pending' };
@@ -366,15 +368,33 @@ function newSentence(zh, en, pairId, patternId, tip, known, source) {
 let voices = [];
 function loadVoices() { voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
 if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+const normLang = v => String(v.lang || '').replace('_', '-').toLowerCase();
+function pickVoice(lang) {
+  const L = lang.toLowerCase();
+  return voices.find(v => normLang(v) === L && /google/i.test(v.name)) || voices.find(v => normLang(v) === L) || voices.find(v => normLang(v).startsWith('en'));
+}
+let speakTimer;
 function speak(text, lang = 'en-US') {
-  if (!window.speechSynthesis || !text) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  const v = voices.find(v => v.lang === lang && /google/i.test(v.name)) || voices.find(v => v.lang === lang) || voices.find(v => /^en/i.test(v.lang));
-  if (v) u.voice = v;
-  u.rate = Number(S.rate) || 1;
-  speechSynthesis.speak(u);
+  const ss = window.speechSynthesis;
+  if (!ss) { toast('這個瀏覽器不支援語音'); return; }
+  if (!text) return;
+  if (!voices.length) loadVoices();
+  const go = () => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    const v = pickVoice(lang);
+    if (v) u.voice = v;
+    u.rate = Number(S.rate) || 1;
+    let started = false;
+    u.onstart = () => { started = true; };
+    u.onerror = e => { if (e.error !== 'interrupted' && e.error !== 'canceled') toast('語音播放失敗：' + e.error + '（請檢查媒體音量和手機的文字轉語音設定）', 4500); };
+    ss.resume();
+    ss.speak(u);
+    setTimeout(() => { if (!started && !ss.speaking) toast('沒有聲音？請確認媒體音量，以及手機「文字轉語音」有下載英文語音', 4500); }, 2500);
+  };
+  clearTimeout(speakTimer);
+  if (ss.speaking || ss.pending) { ss.cancel(); speakTimer = setTimeout(go, 150); }
+  else go();
 }
 const spkBtn = (t, lang) => `<button class="spk" data-speak="${esc(t)}"${lang ? ` data-lang="${lang}"` : ''} aria-label="播放">🔊</button>`;
 const tipHtml = t => t ? `<div class="tip">💡 ${esc(t)}</div>` : '';
@@ -1170,9 +1190,11 @@ function render() {
 }
 
 /* 單字點擊／長按選片語 */
+let pressXY = null;
 document.addEventListener('pointerdown', e => {
   const w = e.target.closest('.w'); if (!w) return;
   longPressed = false;
+  pressXY = [e.clientX, e.clientY];
   clearTimeout(pressTimer);
   pressTimer = setTimeout(() => {
     longPressed = true;
@@ -1180,9 +1202,10 @@ document.addEventListener('pointerdown', e => {
     w.classList.add('sel');
     phraseStart = { ws: w.closest('.ws'), i: Number(w.dataset.i) };
     toast('再點片語的最後一個字');
-  }, 450);
+  }, 650);
 });
-['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, () => clearTimeout(pressTimer)));
+['pointerup', 'pointercancel'].forEach(ev => document.addEventListener(ev, () => clearTimeout(pressTimer)));
+document.addEventListener('pointermove', e => { if (pressXY && Math.hypot(e.clientX - pressXY[0], e.clientY - pressXY[1]) > 10) clearTimeout(pressTimer); });
 document.addEventListener('contextmenu', e => { if (e.target.closest('.w')) e.preventDefault(); });
 
 function onWordTap(w) {
