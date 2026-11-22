@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4ed8">
+<title>English Thinking</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --blue:#1d4ed8; --blue-d:#1e3a8a; --blue-l:#e8efff;
+    --green:#15803d; --green-l:#e3f5e8; --orange:#c2410c; --orange-l:#fff1e6;
+    --ink:#111; --ink2:#222; --line:#cfd6e4; --bg:#f4f6fb; --card:#fff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:18px;line-height:1.5}
+  button,.tap{user-select:none;-webkit-user-select:none;cursor:pointer;font:inherit}
+  header{position:sticky;top:0;z-index:5;background:var(--blue);color:#fff;display:flex;align-items:center;gap:10px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
+  header h1{font-size:20px;margin:0;flex:1;font-weight:800}
+  #syncBadge{font-size:14px;background:#fff;color:var(--blue-d);border-radius:20px;padding:2px 10px;font-weight:700}
+  #syncBadge.warn{background:#ffe8a3;color:#5a3d00}
+  .iconbtn{background:transparent;border:0;color:#fff;font-size:24px;padding:4px 6px}
+  main{max-width:720px;margin:0 auto;padding:16px 14px 110px}
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:2px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  nav button{flex:1;border:0;background:#fff;padding:10px 0 12px;font-size:16px;font-weight:700;color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:2px}
+  nav button .ic{font-size:24px;line-height:1}
+  nav button.on{color:var(--blue);background:var(--blue-l)}
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  textarea,input,select{width:100%;font:inherit;font-size:20px;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  textarea{min-height:96px;resize:vertical}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--blue)}
+  .inwrap{position:relative}
+  .inwrap textarea{padding-right:52px}
+  .xbtn{position:absolute;top:8px;right:8px;width:38px;height:38px;border:0;border-radius:50%;background:#e8ebf2;color:var(--ink);font-size:18px;font-weight:800}
+  label.f{display:block;font-weight:700;margin:14px 0 6px}
+  .btn{border:0;border-radius:12px;padding:14px 18px;font-size:19px;font-weight:800;background:var(--blue);color:#fff;width:100%}
+  .btn.sec{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  .btn.orange{background:#fff;color:var(--orange);border:2px solid var(--orange)}
+  .btn.green{background:var(--green)}
+  .btn.red{background:#b91c1c}
+  .btn.link{background:transparent;color:var(--blue-d);border:0;text-decoration:underline;font-weight:700;font-size:17px;padding:10px}
+  .btn:disabled{opacity:.5}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+  .en{font-size:23px;font-weight:800;color:var(--ink)}
+  .en2{font-size:20px;font-weight:700;color:var(--ink)}
+  .zh{font-size:20px;color:var(--ink)}
+  .sub{font-size:16px;color:var(--ink2)}
+  .tip{font-size:17px;color:#3b2a00;background:#fff6d6;border-radius:10px;padding:6px 10px;margin-top:6px}
+  .spk{border:0;background:var(--blue-l);color:var(--blue);border-radius:50%;width:44px;height:44px;font-size:22px;flex:0 0 44px}
+  .line{display:flex;align-items:center;gap:10px;padding:10px 0}
+  .line+.line{border-top:1px solid var(--line)}
+  .line .txt{flex:1}
+  .chk{width:28px;height:28px;flex:0 0 28px;accent-color:var(--blue)}
+  .tag{display:inline-block;font-size:15px;font-weight:700;padding:2px 10px;border-radius:20px;background:var(--blue-l);color:var(--blue-d)}
+  .tag.g{background:var(--green-l);color:var(--green)}
+  .tag.o{background:var(--orange-l);color:var(--orange)}
+  .notice{background:#fff6d6;border:1.5px solid #e6c34a;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:17px}
+  .seg{display:flex;background:#e2e7f2;border-radius:12px;padding:4px;margin-bottom:14px}
+  .seg button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-size:17px;font-weight:800;color:var(--ink2)}
+  .seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .item{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  .item .zh{font-weight:700}
+  .item .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .dhead{font-weight:800;color:var(--blue-d);margin:16px 2px 8px;font-size:17px}
+  .empty{text-align:center;padding:34px 10px;font-size:19px;color:var(--ink2)}
+  .rev-card{text-align:center;padding:24px 18px}
+  .rev-zh{font-size:30px;font-weight:800;margin:14px 0 18px}
+  .rev-ans{background:var(--green-l);border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:left}
+  .hint{font-size:15px;color:var(--ink2);margin-top:12px}
+  .prog{font-weight:800;color:var(--blue-d);text-align:right}
+  .bar{height:10px;background:#dfe5f1;border-radius:6px;overflow:hidden;margin:6px 0 4px}
+  .bar>i{display:block;height:100%;background:var(--blue)}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
+  .overlay.show{display:flex}
+  .sheet{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
+  .sheet h2{margin:0 0 6px;font-size:22px}
+  .sheet .close{float:right;border:0;background:#eef1f7;border-radius:50%;width:40px;height:40px;font-size:20px}
+  #toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 20px;border-radius:24px;font-size:17px;font-weight:700;z-index:30;display:none;max-width:90%;text-align:center}
+  .spin{display:inline-block;width:20px;height:20px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-4px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .small{font-size:15px}
+  hr{border:0;border-top:1.5px solid var(--line);margin:16px 0}
+
+  .mini{width:auto;padding:8px 14px;font-size:16px}
+  .spk.gray{background:#eef1f7;color:var(--ink)}
+  .spk.sm{width:34px;height:34px;flex:0 0 34px;font-size:16px;vertical-align:middle}
+  .seg5 button{font-size:15px;padding:9px 2px}
+  .w{cursor:pointer;border-bottom:1.5px dotted #8a97b5}
+  .w.sel{background:#ffe08a;border-radius:4px}
+  .wordhead{font-size:32px;font-weight:800;color:var(--blue-d);margin-top:4px}
+  .ctxbox{background:#fff6d6;border:1.5px solid #e6c34a;border-radius:12px;padding:10px 12px;margin:8px 0}
+  .wsec{font-weight:800;color:var(--blue-d);margin:16px 0 6px;font-size:17px}
+  .sense{margin-bottom:10px}
+  .mean{margin:6px 0 6px 4px;font-size:18px}
+  .ex{margin:4px 0 0 22px;font-size:17px}
+  .pos{display:inline-block;font-size:14px;font-weight:800;background:#e2e7f2;color:var(--ink);border-radius:6px;padding:0 6px;margin-right:4px;vertical-align:2px}
+  .pitem{border-top:1px solid var(--line);padding:12px 0}
+  .pitem:first-child{border-top:0;padding-top:0}
+  .stat-big{font-size:34px;font-weight:800;color:var(--blue-d)}
+  .stat-big span{font-size:18px;color:var(--ink2)}
+  .bars{display:flex;align-items:flex-end;gap:4px;height:130px}
+  .bcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .bfill{width:100%;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px}
+  .bnum{font-size:13px;font-weight:700}
+  .blab{font-size:11px;color:var(--ink2);margin-top:2px}
+  a.btn{text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>English Thinking</h1>
+  <span id="syncBadge" class="tap" title="同步狀態">✓</span>
+  <button class="iconbtn" id="btnSettings" aria-label="設定">⚙</button>
+</header>
+
+<main id="view"></main>
+
+<nav>
+  <button data-tab="translate" class="on"><span class="ic">✎</span>翻譯</button>
+  <button data-tab="mine"><span class="ic">☰</span>我的句子</button>
+  <button data-tab="review"><span class="ic">↻</span>複習</button>
+</nav>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const APP_VERSION = '1.2.0';
+
+/* ===== 基本工具 ===== */
+const LS = { data: 'et:data', queue: 'et:queue', set: 'et:settings', plan: 'et:plan', lastPull: 'et:lastPull', pending: 'et:pending' };
+const COLS = {
+  sentences: ['id','zh','en','pair_id','pattern_id','source','scene_id','created','updated_at','next_review','interval','last_review','review_count','status','deleted',
+              'note','usage','tip','hits','last_hit','zh_variants','original'],
+  patterns: ['id','pattern','example_en','created','updated_at','deleted','more'],
+  words: ['id','word','kk','ipa','context_pos','context_zh','context_en','sentence_id','examples','senses','phrases','forms','hits','created','updated_at',
+          'next_review','interval','last_review','review_count','status','deleted'],
+  logs: ['id','kind','date','data','updated_at','deleted']
+};
+const SHEETS = Object.keys(COLS);
+const LADDER = [0, 1, 3, 7, 14, 30];
+const LEVELS = ['A2', 'A2+', 'B1', 'B1+'];
+const LEVEL_ZH = { 'A2': 'A2 初級', 'A2+': 'A2+ 初級進階', 'B1': 'B1 中級', 'B1+': 'B1+ 中級進階' };
+const TAG_ZH = { past_tense: '過去式', subject_verb: '主詞＋動詞', verb_form: '動詞形態', article: '冠詞 a / the', preposition: '介系詞',
+  plural: '單複數', word_choice: '用字', word_order: '字的順序', spelling: '拼字', other: '其他' };
+const SRC_ZH = { single: '中翻英', clip: '收錄', practice: '造句' };
+const WEEK = '日一二三四五六';
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+function toLocalDateStr(d = new Date()) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function addDays(str, n) { const [y, m, d] = str.split('-').map(Number); return toLocalDateStr(new Date(y, m - 1, d + n)); }
+function nowStamp() { const d = new Date(); return toLocalDateStr(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+const today = () => toLocalDateStr();
+const md = str => { if (!str) return ''; const [, m, d] = str.slice(0, 10).split('-'); return Number(m) + '/' + Number(d); };
+const mdw = str => { const [y, m, d] = str.slice(0, 10).split('-').map(Number); return m + '/' + d + '（' + WEEK[new Date(y, m - 1, d).getDay()] + '）'; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const jset = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const jparse = (t, d) => { try { return t ? JSON.parse(t) : d; } catch (e) { return d; } };
+
+let toastT;
+function toast(msg, ms = 2200) { const t = $('#toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = 'none', ms); }
+
+/* ===== 狀態 ===== */
+const S = Object.assign({ gasUrl: '', token: '', provider: 'openai', daily: 5, dailyWords: 3, rate: 0.85, level: 'A2', levelAskAfter: '' }, jget(LS.set, {}));
+const D = Object.assign({ sentences: {}, patterns: {}, words: {}, logs: {} }, jget(LS.data, {}));
+SHEETS.forEach(k => { D[k] = D[k] || {}; });
+let Q = jget(LS.queue, []);
+let P = jget(LS.pending, []);
+let tab = 'translate';
+let trSeg = 'zh';          // zh | clip | prac
+let mineSeg = 'learn';     // learn | known | pat | word | stat
+let statPeriod = 'week';   // week | month | all
+let mineSearch = '';
+let zhDraft = '';
+let trMode = 'input';      // input | match | result
+let tr = null, mt = null;
+let clipDraft = { en: '', zh: '' }, clip = null;
+let pracDraft = '', pracPattern = '', prac = null;
+let busy = false;
+let revealed = false;
+
+function saveSettings() { jset(LS.set, S); }
+function saveData() { jset(LS.data, D); }
+function saveQueue() { jset(LS.queue, Q); updateBadge(); }
+function savePending() { jset(LS.pending, P); }
+
+function normRow(sheet, r) {
+  const o = {};
+  COLS[sheet].forEach(c => o[c] = r[c] == null ? '' : String(r[c]));
+  o.updated_at = Number(o.updated_at) || 0;
+  if (sheet === 'sentences' || sheet === 'words') {
+    o.interval = Number(o.interval) || 0;
+    o.review_count = Number(o.review_count) || 0;
+    o.hits = Math.max(1, Number(o.hits) || 1);
+  }
+  return o;
+}
+SHEETS.forEach(sh => Object.keys(D[sh]).forEach(id => { const u = D[sh][id].updated_at; D[sh][id] = normRow(sh, D[sh][id]); D[sh][id].updated_at = Number(u) || 0; }));
+
+/* ===== 同步 ===== */
+async function api(action, payload = {}) {
+  if (!S.gasUrl) throw new Error('請先到設定填入 GAS 網址');
+  let res;
+  try {
+    res = await fetch(S.gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ token: S.token, action }, payload))
+    });
+  } catch (e) { const err = new Error('連不上網路'); err.offline = true; throw err; }
+  if (!res.ok) throw new Error('連線失敗（' + res.status + '）');
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || '伺服器錯誤');
+  return j;
+}
+
+function put(sheet, row) {
+  row.updated_at = Date.now();
+  D[sheet][row.id] = row;
+  saveData();
+  Q = Q.filter(q => !(q.sheet === sheet && q.row.id === row.id));
+  Q.push({ sheet, row: Object.assign({}, row) });
+  saveQueue();
+  flushSoon();
+}
+
+let flushing = false, flushTimer = null;
+function flushSoon(ms = 800) { clearTimeout(flushTimer); flushTimer = setTimeout(flush, ms); }
+async function flush() {
+  if (flushing || !Q.length || !S.gasUrl || !navigator.onLine) return;
+  flushing = true; updateBadge();
+  const batch = Q.slice(0, 200);
+  try {
+    await api('upsert', { items: batch });
+    Q = Q.filter(q => !batch.some(b => b.sheet === q.sheet && b.row.id === q.row.id && b.row.updated_at === q.row.updated_at));
+    saveQueue();
+    if (Q.length) flushSoon(300);
+  } catch (e) {
+    console.warn('flush', e);
+    flushSoon(30000);
+  } finally { flushing = false; updateBadge(); }
+}
+
+async function pull(force = false) {
+  if (!S.gasUrl) return;
+  const last = Number(localStorage.getItem(LS.lastPull) || 0);
+  if (!force && Date.now() - last < 60000) return;
+  try {
+    const j = await api('pull');
+    const pending = new Set(Q.map(q => q.sheet + ':' + q.row.id));
+    SHEETS.forEach(sheet => {
+      (j[sheet] || []).forEach(r => {
+        const row = normRow(sheet, r);
+        if (!row.id || pending.has(sheet + ':' + row.id)) return;
+        const local = D[sheet][row.id];
+        if (!local || row.updated_at > (Number(local.updated_at) || 0)) D[sheet][row.id] = row;
+      });
+    });
+    saveData();
+    localStorage.setItem(LS.lastPull, String(Date.now()));
+    if (!busy && !$('#overlay').classList.contains('show') && (tab !== 'translate' || (trMode === 'input' && !clip && !prac))) render();
+  } catch (e) { console.warn('pull', e); if (force) toast(e.message); }
+}
+
+function updateBadge() {
+  const b = $('#syncBadge');
+  if (!S.gasUrl) { b.textContent = '未設定'; b.className = 'warn tap'; return; }
+  if (Q.length) { b.textContent = (flushing ? '同步中 ' : '待上傳 ') + Q.length; b.className = 'warn tap'; }
+  else { b.textContent = '✓ 已同步'; b.className = 'tap'; }
+}
+
+/* 紀錄（程度建議、弱點清單用） */
+function logBump(kind, inc) {
+  const id = kind + '-' + today();
+  const row = D.logs[id] || { id, kind, date: today(), data: '{}', updated_at: 0, deleted: '' };
+  const d = jparse(row.data, {});
+  Object.keys(inc).forEach(k => d[k] = (Number(d[k]) || 0) + inc[k]);
+  row.data = JSON.stringify(d);
+  put('logs', row);
+}
+function logAdd(kind, data) { put('logs', { id: kind + '-' + uid(), kind, date: today(), data: JSON.stringify(data), updated_at: 0, deleted: '' }); }
+const logsSince = (kind, from) => alive('logs').filter(l => l.kind === kind && l.date >= from).map(l => jparse(l.data, {}));
+
+/* ===== 資料查詢 ===== */
+const alive = sheet => Object.values(D[sheet]).filter(r => r.deleted !== '1');
+const sentences = () => alive('sentences');
+const patterns = () => alive('patterns');
+const words = () => alive('words');
+function altsOf(id) { return sentences().filter(s => s.pair_id === id); }
+function isMain(s) { return !s.pair_id || !D.sentences[s.pair_id] || D.sentences[s.pair_id].deleted === '1'; }
+const mains = () => sentences().filter(isMain);
+const variantsOf = s => String(s.zh_variants || '').split('｜').filter(Boolean);
+const allZh = s => [s.zh].concat(variantsOf(s));
+function patternCounts(list) {
+  const m = {};
+  (list || mains()).forEach(s => { if (s.pattern_id) m[s.pattern_id] = (m[s.pattern_id] || 0) + 1; });
+  return m;
+}
+
+/* 中文相似度 */
+const normZh = t => String(t || '').replace(/[\s，。！？、,.!?~～…「」『』"'：:；;（）()\-—]/g, '');
+function grams(t) { if (t.length < 2) return new Set([t]); const g = new Set(); for (let i = 0; i < t.length - 1; i++) g.add(t.slice(i, i + 2)); return g; }
+function dice(a, b) { const A = grams(a), B = grams(b); let n = 0; A.forEach(x => { if (B.has(x)) n++; }); return (2 * n) / (A.size + B.size || 1); }
+function findZhCandidates(zh) {
+  const z = normZh(zh);
+  let exact = null; const scored = [];
+  mains().forEach(s => {
+    let best = 0;
+    allZh(s).forEach(v => { const n = normZh(v); if (n === z) exact = exact || s; best = Math.max(best, dice(z, n)); });
+    if (best >= 0.2) scored.push({ s, score: best });
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return { exact, cands: scored.slice(0, 3).map(x => x.s) };
+}
+const normEn = t => String(t || '').toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9' ]/g, ' ').replace(/\s+/g, ' ').trim();
+function findByEn(en) { const n = normEn(en); return n ? (mains().find(s => normEn(s.en) === n) || null) : null; }
+
+/* 母句型 */
+const normP = t => String(t || '').toLowerCase().replace(/_+/g, '___').replace(/\s+/g, ' ').replace(/[.?!。？！\s]+$/, '').trim();
+function findPatternByText(t) { const n = normP(t); return patterns().find(p => normP(p.pattern) === n); }
+function wordSim(a, b) {
+  const A = new Set(normP(a).split(' ')), B = new Set(normP(b).split(' '));
+  let n = 0; A.forEach(x => { if (B.has(x)) n++; });
+  return n / (new Set([...A, ...B]).size || 1);
+}
+function resolvePattern(text, example, keepId) {
+  text = String(text || '').trim();
+  if (!text) return '';
+  const keep = keepId && D.patterns[keepId];
+  if (keep && keep.deleted !== '1' && normP(keep.pattern) === normP(text)) return keep.id;
+  const found = findPatternByText(text);
+  if (found) return found.id;
+  const close = patterns().map(p => ({ p, sim: wordSim(p.pattern, text) })).filter(x => x.sim >= 0.7).sort((a, b) => b.sim - a.sim)[0];
+  if (close && confirm(`要歸到這個句型嗎？\n\n${close.p.pattern}\n\n（按「取消」＝新增句型：${text}）`)) return close.p.id;
+  const p = { id: 'p' + uid(), pattern: text, example_en: example, created: nowStamp(), updated_at: 0, deleted: '', more: '' };
+  put('patterns', p);
+  return p.id;
+}
+
+/* 重複想到 */
+function addHit(s, zh, notYet) {
+  s.hits = (Number(s.hits) || 1) + 1;
+  s.last_hit = today();
+  const n = normZh(zh);
+  if (n && !allZh(s).some(v => normZh(v) === n)) s.zh_variants = variantsOf(s).concat(zh.trim()).join('｜');
+  if (notYet) { s.status = 'learning'; s.interval = 0; s.next_review = addDays(today(), 1); }
+  put('sentences', s);
+}
+
+function newSentence(zh, en, pairId, patternId, tip, known, source) {
+  return { id: 's' + uid(), zh, en, pair_id: pairId || '', pattern_id: patternId || '', source: source || 'single', scene_id: '',
+    created: nowStamp(), updated_at: 0, next_review: known ? '' : addDays(today(), 1), interval: 0, last_review: '', review_count: 0,
+    status: known ? 'known' : 'learning', deleted: '', note: '', usage: '', tip: tip || '', hits: 1, last_hit: today(),
+    zh_variants: '', original: '' };
+}
+
+/* ===== 發音 ===== */
+let voices = [];
+function loadVoices() { voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
+if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function speak(text, lang = 'en-US') {
+  if (!window.speechSynthesis || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang;
+  const v = voices.find(v => v.lang === lang && /google/i.test(v.name)) || voices.find(v => v.lang === lang) || voices.find(v => /^en/i.test(v.lang));
+  if (v) u.voice = v;
+  u.rate = Number(S.rate) || 1;
+  speechSynthesis.speak(u);
+}
+const spkBtn = (t, lang) => `<button class="spk" data-speak="${esc(t)}"${lang ? ` data-lang="${lang}"` : ''} aria-label="播放">🔊</button>`;
+const tipHtml = t => t ? `<div class="tip">💡 ${esc(t)}</div>` : '';
+
+/* 英文句子：每個字可點（查單字），長按第一個字＋點最後一個字＝片語 */
+function enHtml(text, cls = 'en') {
+  let i = 0;
+  const parts = String(text || '').split(/(\s+)/).map(tok => {
+    if (!/[A-Za-z]/.test(tok)) return esc(tok);
+    return `<span class="w" data-i="${i++}">${esc(tok)}</span>`;
+  }).join('');
+  return `<span class="ws ${cls}" data-sent="${esc(text)}">${parts}</span>`;
+}
+const cleanWord = t => String(t || '').replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, '');
+
+/* ===== 畫面：翻譯 ===== */
+function renderTranslate() {
+  const seg = (k, t) => `<button data-trseg="${k}" class="${trSeg === k ? 'on' : ''}">${t}</button>`;
+  let h = `<div class="seg">${seg('zh', '中翻英')}${seg('clip', '收錄')}${seg('prac', '造句')}</div>`;
+  if (trSeg === 'clip') h += clipView();
+  else if (trSeg === 'prac') h += pracView();
+  else h += zhView();
+  $('#view').innerHTML = h;
+}
+
+function zhView() {
+  let h = `<div class="card">
+    <div class="inwrap">
+      <textarea id="zhIn" placeholder="輸入你想說的中文，例如：我正要出門上班">${esc(zhDraft)}</textarea>
+      <button class="xbtn" id="btnClear" aria-label="清除">✕</button>
+    </div>
+    <button class="btn" id="btnTr" style="margin-top:12px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 翻譯中' : '翻譯'}</button>
+  </div>`;
+  if (trMode === 'match' && mt && D.sentences[mt.id]) h += matchCard();
+  else if (trMode === 'result' && tr) h += resultCard();
+  else if (!P.length) h += `<div class="empty">想到什麼中文就輸入<br><span class="small">翻成簡單的美式口語 → 儲存 → 每天複習</span></div>`;
+  if (P.length && trMode === 'input') {
+    h += `<div class="card"><div style="font-weight:800;margin-bottom:4px">待翻譯（${P.length}）</div>`;
+    P.forEach(p => {
+      h += `<div class="line"><div class="txt zh">${esc(p.zh)}<div class="sub small">${esc(p.created)}</div></div>
+        <button class="btn sec mini" data-pend="${p.id}">翻譯</button>
+        <button class="spk gray" data-delpend="${p.id}" aria-label="刪除">✕</button></div>`;
+    });
+    h += `</div>`;
+  }
+  return h;
+}
+
+function matchCard() {
+  const s = D.sentences[mt.id];
+  const sameZh = normZh(mt.zh) === normZh(s.zh);
+  let h = `<div class="card rev-card">
+    <div><span class="tag o">你第 ${(Number(s.hits) || 1) + 1} 次想到這句</span> <span class="sub small">第一次 ${esc(md(s.created))}</span></div>
+    <div class="rev-zh">${esc(s.zh)}</div>
+    ${sameZh ? '' : `<div class="sub" style="margin-top:-10px;margin-bottom:14px">你這次寫：${esc(mt.zh)}</div>`}
+    <div class="sub">先說說看英文</div>`;
+  if (!mt.revealed) {
+    h += `<button class="btn" id="mReveal" style="margin-top:12px">顯示答案</button>`;
+  } else {
+    h += `<div class="rev-ans" style="margin-top:12px">
+        <div class="line"><div class="txt">${enHtml(s.en)}</div>${spkBtn(s.en)}</div>
+        ${tipHtml(s.tip)}
+        ${s.status === 'known' ? '<div style="margin-top:8px"><span class="tag g">已在熟悉區</span></div>' : ''}
+      </div>
+      <div class="row"><button class="btn orange" data-mgrade="0">↻ 還不熟</button><button class="btn green" data-mgrade="1">✓ 說得出來</button></div>`;
+  }
+  h += `<button class="btn link" id="mNot">不是這句，重新翻譯</button></div>`;
+  return h;
+}
+
+function resultCard() {
+  const dup = tr.enDup && D.sentences[tr.enDup] && D.sentences[tr.enDup].deleted !== '1' ? D.sentences[tr.enDup] : null;
+  let h = `<div class="card">`;
+  if (dup) h += `<div class="notice">這句英文你已經存過（想到 ${dup.hits} 次）。按儲存會合併成同一張卡，並記下這次的中文說法。</div>`;
+  h += `<div class="line"><div class="txt">${enHtml(tr.main)}</div>${spkBtn(tr.main)}</div>${tipHtml(tr.tip)}
+    <div class="sub small" style="margin-top:6px">點英文單字可以查字典、存單字</div>`;
+  if (tr.alt) {
+    if (!tr.showAlt) h += `<button class="btn link" id="btnAlt" style="padding-left:0">也可以說 ▾</button>`;
+    else h += `<div class="line" style="border-top:1px solid var(--line);margin-top:8px">
+        <label class="tap" style="flex:1;display:flex;align-items:center;gap:10px"><input type="checkbox" class="chk" id="ckAlt">
+        <div class="txt"><div class="sub">也可以說（勾選一起存）</div><div class="en2">${esc(tr.alt)}</div></div></label>${spkBtn(tr.alt)}</div>`;
+  }
+  if (tr.history.length) {
+    const p = tr.history[tr.history.length - 1];
+    h += `<div class="sub" style="margin-top:10px">上一版：${esc(p.main)} <button class="btn link" id="btnPrev" style="width:auto;padding:4px">改用上一版</button></div>`;
+  }
+  if (!dup) h += `<label class="f">母句型（可修改，沒有就留空）</label>
+          <input id="patIn" value="${esc(tr.pattern)}" placeholder="例如：I'm heading to ___.">`;
+  h += `<div class="row" style="margin-top:14px">
+      <button class="btn orange" id="btnSimpler" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span>' : '太難了'}</button>
+      <button class="btn sec" id="btnKnown">我會了</button>
+    </div>
+    <button class="btn green" id="btnSave" style="margin-top:10px">儲存</button>
+    <div class="sub small" style="margin-top:8px">「太難了」：重翻成更簡單的說法　「我會了」：存進熟悉區，不排複習</div>
+  </div>`;
+  return h;
+}
+
+function setBusy(v) { busy = v; if (tab === 'translate') renderTranslate(); }
+
+async function doTranslate(zhArg) {
+  const zh = String(zhArg ?? ($('#zhIn') ? $('#zhIn').value : zhDraft)).trim();
+  zhDraft = zh;
+  if (!zh) { toast('請先輸入中文'); return; }
+  if (!S.gasUrl || !S.token) { toast('請先完成設定'); openSettings(); return; }
+  const { exact, cands } = findZhCandidates(zh);
+  if (exact) { mt = { id: exact.id, zh, revealed: false }; trMode = 'match'; renderTranslate(); return; }
+  if (!navigator.onLine) { addPending(zh); return; }
+  setBusy(true);
+  try {
+    if (cands.length) {
+      try {
+        const j = await api('match', { zh, provider: S.provider, candidates: cands.map(s => ({ id: s.id, zh: allZh(s).join('／'), en: s.en })) });
+        if (j.id && D.sentences[j.id]) { mt = { id: j.id, zh, revealed: false }; trMode = 'match'; busy = false; renderTranslate(); return; }
+      } catch (e) { if (e.offline) throw e; console.warn('match', e); }
+    }
+    await runTranslate(zh, false);
+  } catch (e) {
+    if (e.offline) addPending(zh); else toast(e.message, 4000);
+  } finally { if (busy) setBusy(false); }
+}
+
+async function runTranslate(zh, simpler) {
+  const previous = simpler ? tr.history.map(h => h.main).concat(tr.main) : [];
+  const j = await api('translate', { zh, provider: S.provider, level: S.level, mode: simpler ? 'simpler' : 'normal', previous });
+  const v = { main: j.main, alt: j.alt || '', pattern: j.pattern || '', tip: j.tip || '' };
+  const history = simpler ? tr.history.concat({ main: tr.main, alt: tr.alt, pattern: tr.pattern, tip: tr.tip }) : [];
+  const dup = findByEn(v.main);
+  tr = Object.assign({ zh, history, showAlt: false, enDup: dup ? dup.id : '' }, v);
+  trMode = 'result';
+}
+
+async function doSimpler() {
+  if (!navigator.onLine) { toast('目前沒有網路'); return; }
+  logBump('simpler', { n: 1 });
+  setBusy(true);
+  try { await runTranslate(tr.zh, true); }
+  catch (e) { toast(e.message, 4000); }
+  finally { setBusy(false); }
+}
+
+function usePrev() {
+  const p = tr.history.pop();
+  const cur = { main: tr.main, alt: tr.alt, pattern: tr.pattern, tip: tr.tip };
+  Object.assign(tr, p, { showAlt: false });
+  tr.history.push(cur);
+  const dup = findByEn(tr.main); tr.enDup = dup ? dup.id : '';
+  renderTranslate();
+}
+
+function saveTranslation(known) {
+  const wantAlt = tr.showAlt && $('#ckAlt') && $('#ckAlt').checked;
+  const dup = tr.enDup && D.sentences[tr.enDup];
+  let msg;
+  if (dup && dup.deleted !== '1') {
+    addHit(dup, tr.zh, false);
+    if (known && dup.status !== 'known') { dup.status = 'known'; dup.next_review = ''; put('sentences', dup); }
+    msg = `已合併：你第 ${dup.hits} 次想到這句`;
+  } else {
+    const pid = resolvePattern($('#patIn') ? $('#patIn').value : '', tr.main);
+    const m = newSentence(tr.zh, tr.main, '', pid, tr.tip, known);
+    put('sentences', m);
+    if (wantAlt) put('sentences', newSentence(tr.zh, tr.alt, m.id, '', '', known));
+    msg = known ? '已存進熟悉區' : '已儲存，明天開始複習';
+  }
+  resetTranslate();
+  toast(msg);
+}
+
+function matchGrade(ok) {
+  const s = D.sentences[mt.id];
+  addHit(s, mt.zh, !ok);
+  resetTranslate();
+  toast(ok ? `很好！第 ${s.hits} 次想到這句` : '明天會再練這句');
+}
+
+function resetTranslate() { tr = null; mt = null; trMode = 'input'; zhDraft = ''; renderTranslate(); }
+
+function addPending(zh) {
+  P.push({ id: uid(), zh, created: nowStamp() }); savePending();
+  zhDraft = ''; trMode = 'input'; busy = false;
+  renderTranslate();
+  toast('沒有網路，已存成待翻譯');
+}
+
+/* ----- 收錄英文 ----- */
+function clipView() {
+  let h = `<div class="card">
+    <label class="f" style="margin-top:0">看到的英文（原句，不會被改）</label>
+    <div class="inwrap"><textarea id="clipEn" placeholder="例如：Never been better." style="min-height:72px">${esc(clipDraft.en)}</textarea>
+      <button class="xbtn" id="btnClipClear" aria-label="清除">✕</button></div>
+    <label class="f">中文（可不填）</label>
+    <input id="clipZh" value="${esc(clipDraft.zh)}" placeholder="不填就由 AI 補上">
+    <button class="btn" id="btnClip" style="margin-top:12px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 分析中' : '分析'}</button>
+  </div>`;
+  if (!clip) return h + `<div class="empty">短影音、電影、同事講的好用英文<br><span class="small">貼進來，AI 補中文、什麼時候用</span></div>`;
+  const dup = findByEn(clip.en);
+  h += `<div class="card">`;
+  if (dup) h += `<div class="notice">這句你已經存過（想到 ${dup.hits} 次），儲存會合併成同一張卡。</div>`;
+  h += `<div class="line"><div class="txt">${enHtml(clip.en)}</div>${spkBtn(clip.en)}</div>
+    <div class="zh">${esc(clip.zh)}</div>
+    ${clip.note ? `<div class="sub" style="margin-top:8px">🗣 什麼時候用：${esc(clip.note)}</div>` : ''}
+    <div style="margin-top:8px">${clip.usage === 'rare' ? '<span class="tag o">少用</span>' : '<span class="tag g">美國人常用</span>'}
+      ${clip.usage_note ? `<span class="sub small">${esc(clip.usage_note)}</span>` : ''}</div>
+    ${tipHtml(clip.tip)}`;
+  if (clip.suggestion) {
+    h += `<div class="line" style="border-top:1px solid var(--line);margin-top:10px">
+      <label class="tap" style="flex:1;display:flex;align-items:center;gap:10px"><input type="checkbox" class="chk" id="ckSug" checked>
+      <div class="txt"><div class="sub">建議說法（勾選一起存）</div><div class="en2">${esc(clip.suggestion)}</div></div></label>${spkBtn(clip.suggestion)}</div>`;
+  }
+  if (!dup) h += `<label class="f">母句型（可修改，沒有就留空）</label><input id="patIn" value="${esc(clip.pattern)}">`;
+  h += `<div class="row" style="margin-top:14px"><button class="btn sec" id="btnClipKnown">我會了</button><button class="btn green" id="btnClipSave">儲存</button></div></div>`;
+  return h;
+}
+
+async function doClip() {
+  clipDraft.en = $('#clipEn').value.trim(); clipDraft.zh = $('#clipZh').value.trim();
+  if (!clipDraft.en) { toast('請先貼上英文'); return; }
+  if (!S.gasUrl || !S.token) { toast('請先完成設定'); openSettings(); return; }
+  setBusy(true);
+  try {
+    const j = await api('clip', { en: clipDraft.en, zh: clipDraft.zh, provider: S.provider, level: S.level });
+    clip = j;
+  } catch (e) { toast(e.message, 4000); }
+  finally { setBusy(false); }
+}
+
+function saveClip(known) {
+  const dup = findByEn(clip.en);
+  if (dup) {
+    addHit(dup, clip.zh, false);
+    toast(`已合併：第 ${dup.hits} 次遇到這句`);
+  } else {
+    const pid = resolvePattern($('#patIn') ? $('#patIn').value : '', clip.en);
+    const s = newSentence(clip.zh, clip.en, '', pid, clip.tip, known, 'clip');
+    Object.assign(s, { note: clip.note, usage: clip.usage, original: clip.en });
+    put('sentences', s);
+    if (clip.suggestion && $('#ckSug') && $('#ckSug').checked) {
+      const a = newSentence(clip.zh, clip.suggestion, s.id, '', '', known, 'clip');
+      put('sentences', a);
+    }
+    toast(known ? '已存進熟悉區' : '已收錄，明天開始複習');
+  }
+  clip = null; clipDraft = { en: '', zh: '' }; renderTranslate();
+}
+
+/* ----- 造句 ----- */
+function pracView() {
+  let h = `<div class="card">
+    ${pracPattern ? `<div style="margin-bottom:10px"><span class="tag">句型：${esc(pracPattern)}</span> <button class="btn link" id="btnPracPatX" style="width:auto;padding:2px 6px">✕ 不用句型</button></div>` : ''}
+    <div class="inwrap"><textarea id="pracIn" placeholder="${pracPattern ? '用這個句型寫幾句英文' : '用英文寫你想說的話，可以好幾句。也可以按鍵盤的麥克風用講的'}">${esc(pracDraft)}</textarea>
+      <button class="xbtn" id="btnPracClear" aria-label="清除">✕</button></div>
+    <button class="btn" id="btnPrac" style="margin-top:12px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 檢查中' : '幫我檢查'}</button>
+    <div class="sub small" style="margin-top:8px">外國人聽得懂就算對，只改會造成誤會的地方</div>
+  </div>`;
+  if (!prac) return h;
+  h += `<div class="card">`;
+  prac.items.forEach((it, i) => {
+    const icon = it.status === 'ok' ? '<span class="tag g">✓ 自然，可以用</span>'
+      : it.status === 'grammar' ? '<span class="tag o">✎ 文法要改</span>' : '<span class="tag">✎ 可以更自然</span>';
+    const en = it.fixed || it.original;
+    h += `<div class="pitem">
+      <div>${icon}</div>
+      ${it.fixed ? `<div class="sub" style="margin-top:6px">你寫的：${esc(it.original)}</div>` : ''}
+      <div class="line" style="padding:6px 0"><div class="txt">${enHtml(en, 'en2')}</div>${spkBtn(en)}</div>
+      ${it.explain ? `<div class="tip">✎ ${esc(it.explain)}</div>` : ''}
+      <div class="sub">${esc(it.zh)}</div>
+      <label class="tap" style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" class="chk" data-pi="${i}" ${it.saved ? 'disabled checked' : ''}> ${it.saved ? '已存' : '存進句子庫'}</label>
+    </div>`;
+  });
+  h += `<div class="row" style="margin-top:12px"><button class="btn sec" id="btnPracAgain">再寫一次</button><button class="btn green" id="btnPracSave">儲存勾選的句子</button></div></div>`;
+  return h;
+}
+
+function topWeak(days = 30, min = 2) {
+  const cnt = {};
+  logsSince('practice', addDays(today(), -days)).forEach(d => (d.tags || []).forEach(t => cnt[t] = (cnt[t] || 0) + 1));
+  return Object.keys(cnt).filter(t => cnt[t] >= min).sort((a, b) => cnt[b] - cnt[a]).map(t => ({ tag: t, n: cnt[t] }));
+}
+
+async function doPractice() {
+  pracDraft = $('#pracIn').value.trim();
+  if (!pracDraft) { toast('請先寫幾句英文'); return; }
+  if (!S.gasUrl || !S.token) { toast('請先完成設定'); openSettings(); return; }
+  setBusy(true);
+  try {
+    const j = await api('practice', { text: pracDraft, provider: S.provider, level: S.level, weak: topWeak().slice(0, 3).map(w => w.tag), pattern: pracPattern });
+    prac = { items: j.items };
+    const tags = []; j.items.forEach(it => tags.push(...it.tags));
+    logAdd('practice', { n: j.items.length, ok: j.items.filter(it => it.status === 'ok').length, tags });
+  } catch (e) { toast(e.message, 4000); }
+  finally { setBusy(false); }
+}
+
+function savePractice() {
+  const picks = [...$$('[data-pi]')].filter(c => c.checked && !c.disabled).map(c => Number(c.dataset.pi));
+  if (!picks.length) { toast('請先勾選要存的句子'); return; }
+  const pat = pracPattern ? findPatternByText(pracPattern) : null;
+  let n = 0;
+  picks.forEach(i => {
+    const it = prac.items[i];
+    const en = it.fixed || it.original;
+    const dup = findByEn(en);
+    if (dup) addHit(dup, it.zh, false);
+    else {
+      const s = newSentence(it.zh, en, '', pat ? pat.id : '', '', false, 'practice');
+      Object.assign(s, { original: it.original, note: it.explain });
+      put('sentences', s);
+    }
+    it.saved = true; n++;
+  });
+  renderTranslate();
+  toast(`已存 ${n} 句，明天開始複習`);
+}
+
+/* ===== 單字 ===== */
+let wordCtx = null;   // 目前打開的單字卡 {data, sent, savedId}
+let phraseStart = null, pressTimer = null, longPressed = false;
+
+function findWord(lemma) { const n = String(lemma || '').toLowerCase().trim(); return words().find(w => w.word.toLowerCase() === n) || null; }
+
+async function openWord(text, sent) {
+  text = String(text || '').trim();
+  if (!text) return;
+  const saved = findWord(text);
+  if (saved && (!sent || jparse(saved.examples, []).includes(sent) || saved.context_en === sent)) return showWordCard(wordFromRow(saved), sent, saved.id);
+  if (!S.gasUrl || !S.token) { toast('請先完成設定'); openSettings(); return; }
+  openSheet(`<button class="close" data-close>✕</button><h2>${esc(text)}</h2><div class="empty"><span class="spin" style="color:var(--blue)"></span> 查詢中…</div>`);
+  try {
+    const j = await api('word', { word: text, sentence: sent || '', provider: S.provider, level: S.level });
+    const ex = findWord(j.lemma);
+    showWordCard(j, sent, ex ? ex.id : '');
+  } catch (e) {
+    openSheet(`<button class="close" data-close>✕</button><h2>${esc(text)}</h2><div class="empty">${esc(e.message)}</div>`);
+  }
+}
+
+function wordFromRow(w) {
+  return { lemma: w.word, kk: w.kk, ipa: w.ipa, context: { pos: w.context_pos, zh: w.context_zh },
+    senses: jparse(w.senses, []), phrases: jparse(w.phrases, []), forms: w.forms, contextEn: w.context_en };
+}
+
+function showWordCard(d, sent, savedId) {
+  wordCtx = { data: d, sent: sent || '', savedId };
+  const w = savedId && D.words[savedId];
+  const ctxSent = sent || d.contextEn || '';
+  const exs = w ? jparse(w.examples, []) : [];
+  const dictUrl = 'https://dictionary.cambridge.org/dictionary/english-chinese-traditional/' + encodeURIComponent(d.lemma.toLowerCase().replace(/\s+/g, '-'));
+  let h = `<button class="close" data-close>✕</button>
+    <div class="wordhead">${esc(d.lemma)}</div>
+    <div class="sub">${d.kk ? 'KK [' + esc(d.kk) + ']　' : ''}${d.ipa ? 'IPA [' + esc(d.ipa) + ']' : ''}</div>
+    <div class="row" style="margin:10px 0;max-width:280px">
+      <button class="btn sec mini" data-speak="${esc(d.lemma)}" data-lang="en-US">🔊 美式</button>
+      <button class="btn sec mini" data-speak="${esc(d.lemma)}" data-lang="en-GB">🔊 英式</button></div>`;
+  if (d.context && d.context.zh) {
+    h += `<div class="ctxbox"><div class="sub small" style="font-weight:800">在${sent ? '你這句' : '這裡'}的意思</div>
+      <div class="en2"><span class="pos">${esc(d.context.pos)}</span> ${esc(d.context.zh)}</div>
+      ${ctxSent ? `<div class="sub" style="margin-top:4px">${esc(ctxSent)}</div>` : ''}</div>`;
+  }
+  if ((d.senses || []).length) {
+    h += `<div class="wsec">所有意思</div>`;
+    d.senses.forEach(s => {
+      h += `<div class="sense"><span class="pos">${esc(s.pos)}</span>`;
+      (s.meanings || []).forEach((m, i) => {
+        h += `<div class="mean"><b>${'①②③④'[i] || (i + 1)}</b> ${esc(m.zh)}
+          ${m.example_en ? `<div class="ex"><span>${esc(m.example_en)}</span> <button class="spk sm" data-speak="${esc(m.example_en)}">🔊</button><div class="sub small">${esc(m.example_zh)}</div></div>` : ''}</div>`;
+      });
+      h += `</div>`;
+    });
+  }
+  if ((d.phrases || []).length) {
+    h += `<div class="wsec">常用搭配</div>` + d.phrases.map(p => `<div class="mean"><b>${esc(p.en)}</b>　${esc(p.zh)}</div>`).join('');
+  }
+  if (d.forms) h += `<div class="wsec">字形變化</div><div class="mean">${esc(d.forms)}</div>`;
+  if (exs.length > 1) h += `<div class="wsec">你遇過的句子</div>` + exs.map(e => `<div class="mean sub">${esc(e)}</div>`).join('');
+  h += `<div class="sub small" style="margin-top:12px">內容由 AI 產生，有疑問可點「查看更多」對照字典</div>
+    <a class="btn link" href="${dictUrl}" target="_blank" rel="noopener" style="display:block;text-align:center">查看更多（劍橋字典）↗</a>`;
+  if (!w) h += `<button class="btn green" id="wAdd" style="margin-top:8px">加入單字庫</button>`;
+  else {
+    h += `<div style="margin-top:8px"><span class="tag o">遇到 ${w.hits} 次</span> ${w.status === 'known' ? '<span class="tag g">熟悉</span>' : `<span class="tag">下次 ${esc(md(w.next_review))}</span>`}</div>`;
+    if (sent && !exs.includes(sent) && w.context_en !== sent) h += `<button class="btn green" id="wAdd" style="margin-top:10px">記下這次的句子（遇到 +1）</button>`;
+    h += `<div class="row" style="margin-top:10px">${w.status === 'known'
+      ? '<button class="btn sec" id="wBack">重新練習</button>' : '<button class="btn sec" id="wKnow">我會了</button>'}
+      <button class="btn link" id="wDel" style="color:#b91c1c">刪除</button></div>`;
+  }
+  openSheet(h);
+}
+
+function saveWord() {
+  const { data: d, sent, savedId } = wordCtx;
+  const w = savedId && D.words[savedId];
+  if (w) {
+    w.hits = (Number(w.hits) || 1) + 1;
+    const exs = jparse(w.examples, []);
+    if (sent && !exs.includes(sent)) exs.push(sent);
+    w.examples = JSON.stringify(exs);
+    put('words', w);
+    toast(`遇到第 ${w.hits} 次`);
+  } else {
+    const src = sent ? findByEn(sent) : null;
+    const row = { id: 'w' + uid(), word: d.lemma, kk: d.kk, ipa: d.ipa, context_pos: (d.context || {}).pos || '', context_zh: (d.context || {}).zh || '',
+      context_en: sent || '', sentence_id: src ? src.id : '', examples: JSON.stringify(sent ? [sent] : []),
+      senses: JSON.stringify(d.senses || []), phrases: JSON.stringify(d.phrases || []), forms: d.forms || '',
+      hits: 1, created: nowStamp(), updated_at: 0, next_review: addDays(today(), 1), interval: 0, last_review: '', review_count: 0, status: 'learning', deleted: '' };
+    put('words', row);
+    toast('已加入單字庫');
+  }
+  closeSheet();
+  if (tab === 'mine') renderMineList();
+}
+
+function setWordStatus(st) {
+  const w = D.words[wordCtx.savedId]; if (!w) return;
+  if (st === 'known') Object.assign(w, { status: 'known', next_review: '' });
+  else if (st === 'learning') Object.assign(w, { status: 'learning', interval: 0, next_review: addDays(today(), 1) });
+  else if (st === 'deleted') { if (!confirm('刪除這個單字？')) return; w.deleted = '1'; }
+  put('words', w); closeSheet(); if (tab === 'mine') renderMineList();
+  toast(st === 'known' ? '已移到熟悉區' : st === 'learning' ? '明天會出現在複習' : '已刪除');
+}
+
+/* ===== 畫面：我的句子 ===== */
+function statusTag(s) {
+  if (s.status === 'known') return '<span class="tag g">熟悉</span>';
+  return s.next_review ? `<span class="tag">下次 ${esc(md(s.next_review))}</span>` : '';
+}
+
+function renderMine() {
+  const seg = (k, t) => `<button data-seg="${k}" class="${mineSeg === k ? 'on' : ''}">${t}</button>`;
+  let h = `<div class="seg seg5">${seg('learn', '學習中')}${seg('known', '熟悉')}${seg('pat', '句型')}${seg('word', '單字')}${seg('stat', '統計')}</div>`;
+  if (mineSeg === 'word') h += `<div class="row" style="margin-bottom:8px"><input id="wordIn" placeholder="輸入單字或片語查詢"><button class="btn mini" id="btnWordLookup" style="flex:0 0 auto">查</button></div>`;
+  if (mineSeg !== 'stat') h += `<input id="search" placeholder="搜尋${mineSeg === 'word' ? '已存的單字' : '中文或英文'}" value="${esc(mineSearch)}" style="margin-bottom:6px">`;
+  h += `<div id="mineList"></div>`;
+  $('#view').innerHTML = h;
+  renderMineList();
+}
+
+function sentenceItem(s) {
+  const p = s.pattern_id && D.patterns[s.pattern_id];
+  const vars = variantsOf(s);
+  return `<div class="item tap" data-edit="${s.id}">
+    <div class="zh">${esc(s.zh)}</div>
+    ${vars.length ? `<div class="sub small">也說：${esc(vars.join('／'))}</div>` : ''}
+    <div class="en2">${esc(s.en)}</div>
+    ${altsOf(s.id).map(a => `<div class="sub">也可以說：${esc(a.en)}</div>`).join('')}
+    <div class="meta">${statusTag(s)}${s.hits > 1 ? `<span class="tag o">想到 ${s.hits} 次</span>` : ''}${s.source && s.source !== 'single' ? `<span class="tag">${SRC_ZH[s.source] || ''}</span>` : ''}${p && p.deleted !== '1' ? `<span class="tag">${esc(p.pattern)}</span>` : ''}</div>
+  </div>`;
+}
+
+function byDate(list, itemFn) {
+  let h = '', day = '';
+  const counts = {};
+  list.forEach(x => { const d = x.created.slice(0, 10); counts[d] = (counts[d] || 0) + 1; });
+  list.forEach(x => {
+    const d = x.created.slice(0, 10);
+    if (d !== day) { day = d; h += `<div class="dhead">${esc(mdw(d))}・${counts[d]}</div>`; }
+    h += itemFn(x);
+  });
+  return h;
+}
+
+function renderMineList() {
+  const el = $('#mineList'); if (!el) return;
+  let h = '';
+  const q = mineSearch.trim().toLowerCase();
+  if (mineSeg === 'learn' || mineSeg === 'known') {
+    let list = mains().filter(s => mineSeg === 'known' ? s.status === 'known' : s.status !== 'known').sort((a, b) => b.created.localeCompare(a.created));
+    if (q) list = list.filter(s => (allZh(s).join(' ') + ' ' + s.en + ' ' + altsOf(s.id).map(a => a.en).join(' ')).toLowerCase().includes(q));
+    if (!list.length) h = `<div class="empty">${mineSeg === 'known' ? '還沒有熟悉的句子<br><span class="small">複習時說得出來，就會慢慢移到這裡</span>' : '還沒有句子'}</div>`;
+    else h = byDate(list, sentenceItem);
+  } else if (mineSeg === 'pat') {
+    const cnt = patternCounts();
+    let list = patterns().sort((a, b) => (cnt[b.id] || 0) - (cnt[a.id] || 0) || b.created.localeCompare(a.created));
+    if (q) list = list.filter(p => (p.pattern + ' ' + p.example_en).toLowerCase().includes(q));
+    h += `<div class="sub" style="margin:8px 0">越常用的句型排越前面</div>`;
+    if (!list.length) h += `<div class="empty">還沒有母句型</div>`;
+    list.forEach(p => {
+      h += `<div class="item tap" data-pat="${p.id}"><div class="row" style="align-items:center">
+        <div class="en2" style="flex:1">${esc(p.pattern)}</div><span class="tag" style="flex:0 0 auto">${cnt[p.id] || 0} 句</span></div></div>`;
+    });
+  } else if (mineSeg === 'word') {
+    let list = words().sort((a, b) => b.created.localeCompare(a.created));
+    if (q) list = list.filter(w => (w.word + ' ' + w.context_zh).toLowerCase().includes(q));
+    if (!list.length) h = `<div class="empty">還沒有單字<br><span class="small">在任何英文句子上點一下單字，就能查字典、存單字</span></div>`;
+    else h = byDate(list, w => `<div class="item tap" data-word="${w.id}">
+        <div class="row" style="align-items:baseline"><div class="en2" style="flex:0 0 auto">${esc(w.word)}</div><div class="sub small">${w.kk ? '[' + esc(w.kk) + ']' : ''}</div></div>
+        <div class="zh"><span class="pos">${esc(w.context_pos)}</span> ${esc(w.context_zh)}</div>
+        <div class="meta">${statusTag(w)}${w.hits > 1 ? `<span class="tag o">遇到 ${w.hits} 次</span>` : ''}</div></div>`);
+  } else {
+    h = statsView();
+  }
+  el.innerHTML = h;
+}
+
+/* ----- 統計 ----- */
+function levelSuggestion() {
+  const i = LEVELS.indexOf(S.level);
+  if (i < 0 || i >= LEVELS.length - 1) return null;
+  if (S.levelAskAfter && S.levelAskAfter > today()) return null;
+  const from = addDays(today(), -21);
+  const pr = logsSince('practice', from).reduce((a, d) => ({ n: a.n + (d.n || 0), ok: a.ok + (d.ok || 0) }), { n: 0, ok: 0 });
+  const rv = logsSince('review', from).reduce((a, d) => ({ n: a.n + (d.n || 0), ok: a.ok + (d.ok || 0) }), { n: 0, ok: 0 });
+  const sp = logsSince('simpler', from).reduce((a, d) => a + (d.n || 0), 0);
+  if (pr.n >= 15 && pr.ok / pr.n >= 0.8 && rv.n >= 20 && rv.ok / rv.n >= 0.8 && sp <= 2) return LEVELS[i + 1];
+  return null;
+}
+function levelBanner() {
+  const next = levelSuggestion();
+  if (!next) return '';
+  return `<div class="notice" style="background:var(--green-l);border-color:#7cc68e">🎉 最近 3 週表現很好：造句、複習大多都說得出來，也很少按「太難了」。<br>要不要升到 <b>${LEVEL_ZH[next]}</b> 試試？覺得吃力隨時可以在設定降回來。
+    <div class="row" style="margin-top:10px"><button class="btn sec mini" id="lvNo">先不要</button><button class="btn green mini" data-lvup="${next}">升一級</button></div></div>`;
+}
+
+function statsView() {
+  const seg = (k, t) => `<button data-period="${k}" class="${statPeriod === k ? 'on' : ''}">${t}</button>`;
+  const from = statPeriod === 'week' ? addDays(today(), -6) : statPeriod === 'month' ? addDays(today(), -29) : '0000';
+  const ms = mains();
+  const inP = ms.filter(s => s.created.slice(0, 10) >= from);
+  const src = { single: 0, clip: 0, practice: 0 };
+  inP.forEach(s => { src[s.source in src ? s.source : 'single']++; });
+  const wN = words().filter(w => w.created.slice(0, 10) >= from).length;
+  let h = `<div class="seg">${seg('week', '本週')}${seg('month', '本月')}${seg('all', '全部')}</div>${levelBanner()}
+    <div class="card"><div class="stat-big">${inP.length}<span> 句新學</span></div>
+      <div class="sub">中翻英 ${src.single}・收錄 ${src.clip}・造句 ${src.practice}・單字 ${wN}</div>
+      <div class="sub">已熟悉 <b>${ms.filter(s => s.status === 'known').length}</b> 句・目前程度 <b>${LEVEL_ZH[S.level] || S.level}</b></div></div>`;
+
+  const days = statPeriod === 'week' ? 7 : 14;
+  const counts = []; let max = 1;
+  for (let i = days - 1; i >= 0; i--) { const d = addDays(today(), -i); const n = ms.filter(s => s.created.slice(0, 10) === d).length; counts.push({ d, n }); max = Math.max(max, n); }
+  h += `<div class="card"><div class="wsec" style="margin-top:0">每天學幾句（最近 ${days} 天）</div><div class="bars">` +
+    counts.map(c => `<div class="bcol"><div class="bnum">${c.n || ''}</div><div class="bfill" style="height:${Math.round(c.n / max * 90)}px"></div><div class="blab">${md(c.d)}</div></div>`).join('') + `</div></div>`;
+
+  const top = ms.filter(s => s.hits > 1 && (statPeriod === 'all' || (s.last_hit || '') >= from)).sort((a, b) => b.hits - a.hits).slice(0, 10);
+  h += `<div class="card"><div class="wsec" style="margin-top:0">最常想到的句子</div>` +
+    (top.length ? top.map((s, i) => `<div class="line tap" data-edit="${s.id}"><b style="width:24px">${i + 1}</b><div class="txt"><div class="en2">${esc(s.en)}</div><div class="sub">${esc(s.zh)}</div></div><span class="tag o">${s.hits} 次</span></div>`).join('')
+      : '<div class="sub">還沒有重複想到的句子</div>') + `</div>`;
+
+  const pc = patternCounts(inP);
+  const tp = Object.keys(pc).filter(id => D.patterns[id] && D.patterns[id].deleted !== '1').sort((a, b) => pc[b] - pc[a]).slice(0, 10);
+  h += `<div class="card"><div class="wsec" style="margin-top:0">最常用的母句型</div>` +
+    (tp.length ? tp.map((id, i) => `<div class="line tap" data-pat="${id}"><b style="width:24px">${i + 1}</b><div class="txt en2">${esc(D.patterns[id].pattern)}</div><span class="tag">${pc[id]} 句</span></div>`).join('')
+      : '<div class="sub">這段期間還沒有句型</div>') + `</div>`;
+
+  const weak = topWeak();
+  h += `<div class="card"><div class="wsec" style="margin-top:0">造句常犯的地方（最近 30 天）</div>` +
+    (weak.length ? weak.map(w => `<div class="line"><div class="txt">${esc(TAG_ZH[w.tag] || w.tag)}</div><span class="tag o">${w.n} 次</span></div>`).join('') +
+      '<div class="sub small" style="margin-top:6px">造句時 AI 會特別留意這些地方；30 天內沒再犯就會自動移除</div>'
+      : '<div class="sub">目前沒有明顯的常犯錯誤 👍</div>') + `</div>`;
+  return h;
+}
+
+/* ----- 句子、句型編輯 ----- */
+function openSentence(id) {
+  const s = D.sentences[id]; if (!s) return;
+  const p = s.pattern_id && D.patterns[s.pattern_id];
+  const alts = altsOf(id);
+  const vars = variantsOf(s);
+  let h = `<button class="close" data-close>✕</button><h2>句子</h2>
+    <div class="sub">${esc(md(s.created))} ${SRC_ZH[s.source] || '中翻英'}・想到 ${s.hits} 次${s.last_hit && s.hits > 1 ? '（最近 ' + esc(md(s.last_hit)) + '）' : ''}</div>
+    <div class="line"><div class="txt">${enHtml(s.en, 'en2')}</div>${spkBtn(s.en)}</div>
+    <div class="sub small">點單字可以查字典、存單字</div>
+    ${s.original && s.original !== s.en ? `<div class="sub" style="margin-top:6px">你原本寫的：${esc(s.original)}</div>` : ''}
+    ${s.note ? `<div class="sub" style="margin-top:6px">${s.source === 'clip' ? '🗣 什麼時候用' : '✎ 修改說明'}：${esc(s.note)}</div>` : ''}
+    <label class="f">中文</label><input id="eZh" value="${esc(s.zh)}">
+    ${vars.length ? `<div class="sub small" style="margin-top:6px">其他中文說法：${esc(vars.join('／'))}</div>` : ''}
+    <label class="f">英文</label><input id="eEn" value="${esc(s.en)}">`;
+  alts.forEach(a => {
+    h += `<label class="f">也可以說</label><div class="row" style="align-items:center">
+      <input data-alt="${a.id}" value="${esc(a.en)}">${spkBtn(a.en)}
+      <button class="spk gray" data-delalt="${a.id}" aria-label="刪除">✕</button></div>`;
+  });
+  h += `<label class="f">💡 記憶提示</label><input id="eTip" value="${esc(s.tip)}" placeholder="例如：已經出門，正往公司去">
+    <label class="f">母句型（留空 = 不歸類）</label><input id="ePat" value="${esc(p && p.deleted !== '1' ? p.pattern : '')}">
+    <div class="sub" style="margin-top:10px">${s.status === 'known' ? '在熟悉區' : '下次複習 ' + esc(md(s.next_review))}｜已複習 ${s.review_count} 次</div>
+    <button class="btn" id="eSave" style="margin-top:16px">儲存修改</button>
+    ${s.status === 'known' ? '<button class="btn sec" id="eBack" style="margin-top:10px">重新練習</button>' : '<button class="btn sec" id="eKnow" style="margin-top:10px">我會了（移到熟悉區）</button>'}
+    <button class="btn link" id="eDel" style="margin-top:6px;color:#b91c1c">刪除這句</button>`;
+  openSheet(h);
+  $('#eSave').onclick = () => {
+    const zh = $('#eZh').value.trim(), en = $('#eEn').value.trim();
+    if (!zh || !en) { toast('中文和英文都不能空白'); return; }
+    s.zh = zh; s.en = en; s.tip = $('#eTip').value.trim();
+    s.pattern_id = resolvePattern($('#ePat').value, en, s.pattern_id);
+    put('sentences', s);
+    $$('[data-alt]').forEach(inp => {
+      const a = D.sentences[inp.dataset.alt]; const v = inp.value.trim();
+      if (a && v && v !== a.en) { a.en = v; a.zh = zh; put('sentences', a); }
+    });
+    closeSheet(); render(); toast('已更新');
+  };
+  if ($('#eBack')) $('#eBack').onclick = () => { Object.assign(s, { status: 'learning', interval: 0, next_review: addDays(today(), 1) }); put('sentences', s); closeSheet(); render(); toast('明天會出現在複習'); };
+  if ($('#eKnow')) $('#eKnow').onclick = () => { Object.assign(s, { status: 'known', next_review: '' }); put('sentences', s); closeSheet(); render(); toast('已移到熟悉區'); };
+  $('#eDel').onclick = () => {
+    if (!confirm('確定刪除這句？')) return;
+    s.deleted = '1'; put('sentences', s);
+    altsOf(id).forEach(a => { a.deleted = '1'; put('sentences', a); });
+    closeSheet(); render(); toast('已刪除');
+  };
+  $$('[data-delalt]').forEach(b => b.onclick = () => { const a = D.sentences[b.dataset.delalt]; a.deleted = '1'; put('sentences', a); openSentence(id); });
+}
+
+function openPattern(id) {
+  const p = D.patterns[id]; if (!p) return;
+  const ex = mains().filter(s => s.pattern_id === id);
+  const more = jparse(p.more, []);
+  const others = patterns().filter(o => o.id !== id).sort((a, b) => a.pattern.localeCompare(b.pattern));
+  let h = `<button class="close" data-close>✕</button><h2>母句型</h2>
+    <div class="en" style="margin:6px 0 12px">${esc(p.pattern)}</div>
+    <button class="btn green" data-prac-pat="${id}">用這個句型造句</button>
+    <hr><div style="font-weight:800">你的例句（${ex.length}）</div>`;
+  if (!ex.length) h += `<div class="sub">沒有例句</div>`;
+  ex.forEach(s => { h += `<div class="line"><div class="txt"><div class="en2">${esc(s.en)}</div><div class="sub">${esc(s.zh)}</div></div>${spkBtn(s.en)}</div>`; });
+  h += `<div style="font-weight:800;margin-top:14px">還能這樣用</div>`;
+  if (more.length) more.forEach(e => { h += `<div class="line"><div class="txt"><span class="tag">${esc(e.scene)}</span><div class="en2">${esc(e.en)}</div><div class="sub">${esc(e.zh)}</div></div>${spkBtn(e.en)}</div>`; });
+  h += `<button class="btn sec" id="pMore" style="margin-top:8px">${more.length ? '再換兩個例句' : '看兩個不同情境的例句'}</button>`;
+  h += `<hr><label class="f">句型名稱</label><input id="pName" value="${esc(p.pattern)}">
+    <button class="btn sec" id="pSave" style="margin-top:10px">改名</button>`;
+  if (others.length) {
+    h += `<label class="f">合併到另一個句型</label>
+      <select id="pTarget"><option value="">請選擇</option>${others.map(o => `<option value="${o.id}">${esc(o.pattern)}</option>`).join('')}</select>
+      <button class="btn sec" id="pMerge" style="margin-top:10px">合併</button>`;
+  }
+  h += `<button class="btn link" id="pDel" style="margin-top:12px;color:#b91c1c">刪除句型（例句保留）</button>`;
+  openSheet(h);
+  $('#pMore').onclick = async () => {
+    const b = $('#pMore'); b.disabled = true; b.innerHTML = '<span class="spin"></span> 產生中';
+    try {
+      const j = await api('examples', { pattern: p.pattern, level: S.level, provider: S.provider, existing: ex.map(s => s.en).concat(more.map(e => e.en)) });
+      p.more = JSON.stringify(j.examples); put('patterns', p); openPattern(id);
+    } catch (e) { toast(e.message, 4000); b.disabled = false; b.textContent = '再試一次'; }
+  };
+  $('#pSave').onclick = () => {
+    const v = $('#pName').value.trim(); if (!v) return;
+    const same = findPatternByText(v);
+    if (same && same.id !== id) { toast('已有同名句型，請用合併'); return; }
+    p.pattern = v; put('patterns', p); closeSheet(); render(); toast('已改名');
+  };
+  if ($('#pMerge')) $('#pMerge').onclick = () => {
+    const t = $('#pTarget').value; if (!t) { toast('請選擇要合併到哪個句型'); return; }
+    ex.forEach(s => { s.pattern_id = t; put('sentences', s); });
+    p.deleted = '1'; put('patterns', p); closeSheet(); render(); toast('已合併');
+  };
+  $('#pDel').onclick = () => {
+    if (!confirm('刪除這個句型？例句會保留，但不再歸類。')) return;
+    ex.forEach(s => { s.pattern_id = ''; put('sentences', s); });
+    p.deleted = '1'; put('patterns', p); closeSheet(); render(); toast('已刪除');
+  };
+}
+
+/* ===== 畫面：複習 ===== */
+function getPlan() {
+  const t = today();
+  let p = jget(LS.plan, null);
+  if (!p || p.date !== t) p = { date: t, ids: [], done: {}, wids: [], wdone: {} };
+  p.wids = p.wids || []; p.wdone = p.wdone || {};
+  const fill = (ids, done, sheet, list, limit) => {
+    const ok = id => D[sheet][id] && D[sheet][id].deleted !== '1';
+    const kept = ids.filter(id => ok(id) || done[id] !== undefined);
+    if (kept.length < limit) {
+      const have = new Set(kept);
+      list.filter(x => !have.has(x.id) && x.status !== 'known' && x.next_review && x.next_review <= t)
+        .sort((a, b) => (b.hits - a.hits) || a.next_review.localeCompare(b.next_review) || a.created.localeCompare(b.created))
+        .slice(0, limit - kept.length).forEach(x => kept.push(x.id));
+    }
+    return kept;
+  };
+  p.ids = fill(p.ids, p.done, 'sentences', mains(), S.daily);
+  p.wids = fill(p.wids, p.wdone, 'words', words(), S.dailyWords);
+  jset(LS.plan, p);
+  return p;
+}
+
+function weekProgress() {
+  const from = addDays(today(), -6);
+  const ms = mains();
+  return { added: ms.filter(s => s.created.slice(0, 10) >= from).length, known: ms.filter(s => s.status === 'known').length };
+}
+
+function renderReview() {
+  const p = getPlan();
+  const total = p.ids.length + p.wids.length;
+  const doneN = Object.keys(p.done).length + Object.keys(p.wdone).length;
+  const curId = p.ids.find(id => p.done[id] === undefined && D.sentences[id] && D.sentences[id].deleted !== '1');
+  const curW = curId ? null : p.wids.find(id => p.wdone[id] === undefined && D.words[id] && D.words[id].deleted !== '1');
+  const wp = weekProgress();
+  const progress = `<div class="sub" style="margin-top:14px">這週新學 <b>${wp.added}</b> 句・已熟悉 <b>${wp.known}</b> 句</div>`;
+  let h = '';
+  if (!total) {
+    h = `<div class="card empty">今天沒有要複習的內容 👍<br><span class="small">${mains().length ? '想到中文就去「翻譯」存起來' : '先到「翻譯」存幾句吧'}</span>${progress}</div>`;
+  } else if (!curId && !curW) {
+    h = levelBanner() + `<div class="card empty">🎉 今天的複習完成了！<br><span class="small">還不熟的明天會再出現</span>${progress}</div>`;
+  } else {
+    h = `<div class="prog">今天 ${doneN + 1} / ${total}</div><div class="bar"><i style="width:${Math.round(doneN / total * 100)}%"></i></div>`;
+    if (curId) {
+      const s = D.sentences[curId];
+      const alts = altsOf(s.id);
+      const pat = s.pattern_id && D.patterns[s.pattern_id];
+      h += `<div class="card rev-card"><div class="sub">先開口說出英文</div><div class="rev-zh">${esc(s.zh)}</div>`;
+      if (!revealed) h += `<button class="btn" id="btnReveal">顯示答案</button><div class="hint">3 秒內說得出來、意思對，就算說得出來（換個說法也算）</div>`;
+      else h += `<div class="rev-ans">
+          <div class="line"><div class="txt">${enHtml(s.en)}</div>${spkBtn(s.en)}</div>
+          ${alts.map(a => `<div class="line"><div class="txt"><div class="sub">也可以說</div><div class="en2">${esc(a.en)}</div></div>${spkBtn(a.en)}</div>`).join('')}
+          ${tipHtml(s.tip)}
+          ${s.note && s.source === 'clip' ? `<div class="sub" style="margin-top:6px">🗣 ${esc(s.note)}</div>` : ''}
+          ${pat && pat.deleted !== '1' ? `<div class="sub" style="margin-top:6px">母句型：<b>${esc(pat.pattern)}</b></div>` : ''}
+          <div class="sub small" style="margin-top:6px">${esc(md(s.created))} 學${s.hits > 1 ? '・想到 ' + s.hits + ' 次' : ''}</div>
+        </div>
+        <div class="row"><button class="btn orange" data-grade="0">↻ 還不熟</button><button class="btn green" data-grade="1">✓ 說得出來</button></div>`;
+      h += `</div>`;
+    } else {
+      const w = D.words[curW];
+      h += `<div class="card rev-card"><span class="tag">單字</span><div class="sub" style="margin-top:8px">說出英文單字</div>
+        <div class="rev-zh"><span class="pos">${esc(w.context_pos)}</span> ${esc(w.context_zh)}</div>`;
+      if (!revealed) h += `<button class="btn" id="btnReveal">顯示答案</button>`;
+      else h += `<div class="rev-ans"><div class="line"><div class="txt"><div class="en">${esc(w.word)}</div><div class="sub small">${w.kk ? 'KK [' + esc(w.kk) + ']' : ''}</div></div>${spkBtn(w.word)}</div>
+          ${w.context_en ? `<div class="line"><div class="txt sub">${esc(w.context_en)}</div>${spkBtn(w.context_en)}</div>` : ''}
+          ${w.forms ? `<div class="sub small">${esc(w.forms)}</div>` : ''}
+          <button class="btn link" data-word="${w.id}" style="padding-left:0">看完整單字卡</button></div>
+        <div class="row"><button class="btn orange" data-wgrade="0">↻ 還不熟</button><button class="btn green" data-wgrade="1">✓ 說得出來</button></div>`;
+      h += `</div>`;
+    }
+  }
+  $('#view').innerHTML = h;
+  if ($('#btnReveal')) $('#btnReveal').onclick = () => { revealed = true; renderReview(); speak(curId ? D.sentences[curId].en : D.words[curW].word); };
+  $$('[data-grade]').forEach(b => b.onclick = () => grade('sentences', curId, b.dataset.grade === '1'));
+  $$('[data-wgrade]').forEach(b => b.onclick = () => grade('words', curW, b.dataset.wgrade === '1'));
+}
+
+function grade(sheet, id, ok) {
+  const s = D[sheet][id]; const t = today();
+  if (ok) {
+    if (s.interval >= 30) { s.status = 'known'; s.next_review = ''; }
+    else {
+      const idx = LADDER.indexOf(s.interval);
+      const next = LADDER[Math.min((idx < 0 ? 0 : idx) + 1, LADDER.length - 1)];
+      s.interval = next; s.next_review = addDays(t, next);
+    }
+  } else { s.interval = 0; s.next_review = addDays(t, 1); }
+  s.last_review = t; s.review_count = (Number(s.review_count) || 0) + 1;
+  put(sheet, s);
+  logBump('review', { n: 1, ok: ok ? 1 : 0 });
+  const p = getPlan();
+  if (sheet === 'sentences') p.done[id] = ok ? 1 : 0; else p.wdone[id] = ok ? 1 : 0;
+  jset(LS.plan, p);
+  revealed = false;
+  renderReview();
+}
+
+/* ===== 設定 ===== */
+function openSettings() {
+  const opt = (v, t, cur) => `<option value="${v}" ${String(cur) === String(v) ? 'selected' : ''}>${t}</option>`;
+  const h = `<button class="close" data-close>✕</button><h2>設定</h2>
+    <label class="f">GAS 網址（Web App URL）</label><input id="sUrl" value="${esc(S.gasUrl)}" placeholder="https://script.google.com/macros/s/.../exec">
+    <label class="f">通行碼</label><input id="sTok" type="password" value="${esc(S.token)}">
+    <label class="f">英文程度（AI 依這個程度給句子）</label>
+    <select id="sLevel">${LEVELS.map(l => opt(l, LEVEL_ZH[l] + (l === 'A2' ? '（建議）' : ''), S.level)).join('')}</select>
+    <label class="f">翻譯引擎</label>
+    <select id="sProv">${opt('openai', 'OpenAI（ChatGPT）', S.provider)}${opt('gemini', 'Gemini', S.provider)}${opt('claude', 'Claude', S.provider)}</select>
+    <div class="row"><div><label class="f">每天複習句子</label><input id="sDaily" type="number" min="1" max="50" value="${S.daily}"></div>
+      <div><label class="f">每天複習單字</label><input id="sDailyW" type="number" min="0" max="30" value="${S.dailyWords}"></div></div>
+    <label class="f">發音語速</label>
+    <select id="sRate">${opt('0.85', '慢（0.85x）', S.rate)}${opt('1', '正常（1.0x）', S.rate)}</select>
+    <button class="btn" id="sSave" style="margin-top:18px">儲存設定</button>
+    <div class="row" style="margin-top:10px"><button class="btn sec" id="sTest">測試連線</button><button class="btn sec" id="sSync">立即同步</button></div>
+    <div class="sub" id="sInfo" style="margin-top:12px">待上傳 ${Q.length} 筆｜本機 ${mains().length} 句、${patterns().length} 個句型、${words().length} 個單字</div>
+    <div class="sub small" style="margin-top:6px">English Thinking v${APP_VERSION}</div>`;
+  openSheet(h);
+  const read = () => {
+    S.gasUrl = $('#sUrl').value.trim(); S.token = $('#sTok').value.trim(); S.provider = $('#sProv').value; S.level = $('#sLevel').value;
+    S.daily = Math.max(1, Math.min(50, parseInt($('#sDaily').value, 10) || 5));
+    S.dailyWords = Math.max(0, Math.min(30, parseInt($('#sDailyW').value, 10) || 0));
+    S.rate = Number($('#sRate').value);
+    saveSettings(); updateBadge();
+  };
+  $('#sSave').onclick = () => { read(); closeSheet(); toast('已儲存'); pull(true); flush(); render(); };
+  $('#sTest').onclick = async () => {
+    read();
+    try { const j = await api('ping'); $('#sInfo').textContent = `✓ 連線成功（後端 v${j.version || '?'}）：雲端 ${j.counts.sentences} 筆句子、${j.counts.words || 0} 個單字`; }
+    catch (e) { $('#sInfo').textContent = '✕ ' + e.message; }
+  };
+  $('#sSync').onclick = async () => { read(); await flush(); await pull(true); $('#sInfo').textContent = `同步完成｜待上傳 ${Q.length} 筆`; };
+}
+
+/* ===== 共用 ===== */
+function openSheet(h) { $('#sheet').innerHTML = h; $('#overlay').classList.add('show'); }
+function closeSheet() { $('#overlay').classList.remove('show'); }
+
+function render() {
+  $$('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  if (tab === 'translate') renderTranslate();
+  else if (tab === 'mine') renderMine();
+  else renderReview();
+  updateBadge();
+}
+
+/* 單字點擊／長按選片語 */
+document.addEventListener('pointerdown', e => {
+  const w = e.target.closest('.w'); if (!w) return;
+  longPressed = false;
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => {
+    longPressed = true;
+    $$('.w.sel').forEach(x => x.classList.remove('sel'));
+    w.classList.add('sel');
+    phraseStart = { ws: w.closest('.ws'), i: Number(w.dataset.i) };
+    toast('再點片語的最後一個字');
+  }, 450);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, () => clearTimeout(pressTimer)));
+document.addEventListener('contextmenu', e => { if (e.target.closest('.w')) e.preventDefault(); });
+
+function onWordTap(w) {
+  if (longPressed) { longPressed = false; return; }
+  const ws = w.closest('.ws'); const i = Number(w.dataset.i);
+  const sent = ws.dataset.sent;
+  if (phraseStart && phraseStart.ws === ws && phraseStart.i !== i) {
+    const [a, b] = [Math.min(phraseStart.i, i), Math.max(phraseStart.i, i)];
+    const toks = [...ws.querySelectorAll('.w')].filter(x => Number(x.dataset.i) >= a && Number(x.dataset.i) <= b).map(x => x.textContent);
+    phraseStart = null; $$('.w.sel').forEach(x => x.classList.remove('sel'));
+    return openWord(toks.map(cleanWord).join(' '), sent);
+  }
+  phraseStart = null; $$('.w.sel').forEach(x => x.classList.remove('sel'));
+  openWord(cleanWord(w.textContent), sent);
+}
+
+document.addEventListener('click', e => {
+  const wtok = e.target.closest('.w');
+  if (wtok) return onWordTap(wtok);
+  const t = e.target.closest('[data-speak],[data-tab],[data-seg],[data-trseg],[data-period],[data-edit],[data-pat],[data-word],[data-close],[data-pend],[data-delpend],[data-mgrade],[data-prac-pat],[data-lvup],button[id]');
+  if (!t) { if (e.target.id === 'overlay') closeSheet(); return; }
+  if (t.dataset.speak !== undefined) return speak(t.dataset.speak, t.dataset.lang || 'en-US');
+  if (t.dataset.tab) {
+    tab = t.dataset.tab; revealed = false; render(); window.scrollTo(0, 0);
+    if (tab === 'translate' && trSeg === 'zh' && trMode === 'input' && $('#zhIn')) $('#zhIn').focus();
+    return;
+  }
+  if (t.dataset.trseg) { trSeg = t.dataset.trseg; return renderTranslate(); }
+  if (t.dataset.seg) { mineSeg = t.dataset.seg; mineSearch = ''; return renderMine(); }
+  if (t.dataset.period) { statPeriod = t.dataset.period; return renderMineList(); }
+  if (t.dataset.edit) { closeSheet(); return openSentence(t.dataset.edit); }
+  if (t.dataset.pat) return openPattern(t.dataset.pat);
+  if (t.dataset.word) { const w = D.words[t.dataset.word]; return w && showWordCard(wordFromRow(w), '', w.id); }
+  if (t.dataset.close !== undefined) return closeSheet();
+  if (t.dataset.pend) {
+    const p = P.find(x => x.id === t.dataset.pend); if (!p) return;
+    P = P.filter(x => x.id !== p.id); savePending();
+    return doTranslate(p.zh);
+  }
+  if (t.dataset.delpend) { P = P.filter(x => x.id !== t.dataset.delpend); savePending(); return renderTranslate(); }
+  if (t.dataset.mgrade) return matchGrade(t.dataset.mgrade === '1');
+  if (t.dataset.pracPat) {
+    const p = D.patterns[t.dataset.pracPat];
+    closeSheet(); tab = 'translate'; trSeg = 'prac'; pracPattern = p ? p.pattern : ''; prac = null; pracDraft = '';
+    render(); if ($('#pracIn')) $('#pracIn').focus(); return;
+  }
+  if (t.dataset.lvup) { S.level = t.dataset.lvup; S.levelAskAfter = addDays(today(), 21); saveSettings(); toast('已升到 ' + LEVEL_ZH[S.level]); return render(); }
+  switch (t.id) {
+    case 'btnTr': return busy ? null : doTranslate();
+    case 'btnSave': return saveTranslation(false);
+    case 'btnKnown': return saveTranslation(true);
+    case 'btnSimpler': return busy ? null : doSimpler();
+    case 'btnAlt': tr.showAlt = true; return renderTranslate();
+    case 'btnPrev': return usePrev();
+    case 'mReveal': mt.revealed = true; renderTranslate(); return speak(D.sentences[mt.id].en);
+    case 'mNot': {
+      const zh = mt.zh; mt = null; trMode = 'input';
+      if (!navigator.onLine) return addPending(zh);
+      setBusy(true);
+      return runTranslate(zh, false).catch(err => { if (err.offline) addPending(zh); else toast(err.message, 4000); }).finally(() => setBusy(false));
+    }
+    case 'btnClear': resetTranslate(); $('#zhIn').focus(); return;
+    case 'btnClip': return busy ? null : doClip();
+    case 'btnClipSave': return saveClip(false);
+    case 'btnClipKnown': return saveClip(true);
+    case 'btnClipClear': clip = null; clipDraft = { en: '', zh: '' }; renderTranslate(); $('#clipEn').focus(); return;
+    case 'btnPrac': return busy ? null : doPractice();
+    case 'btnPracSave': return savePractice();
+    case 'btnPracAgain': case 'btnPracClear': prac = null; pracDraft = ''; renderTranslate(); $('#pracIn').focus(); return;
+    case 'btnPracPatX': pracPattern = ''; return renderTranslate();
+    case 'btnWordLookup': { const v = $('#wordIn').value.trim(); if (v) openWord(v, ''); return; }
+    case 'wAdd': return saveWord();
+    case 'wKnow': return setWordStatus('known');
+    case 'wBack': return setWordStatus('learning');
+    case 'wDel': return setWordStatus('deleted');
+    case 'lvNo': S.levelAskAfter = addDays(today(), 14); saveSettings(); return render();
+  }
+});
+document.addEventListener('compositionend', e => { if (e.target.id === 'search') { mineSearch = e.target.value; renderMineList(); } });
+document.addEventListener('input', e => {
+  const id = e.target.id;
+  if (id === 'zhIn') zhDraft = e.target.value;
+  else if (id === 'clipEn') clipDraft.en = e.target.value;
+  else if (id === 'clipZh') clipDraft.zh = e.target.value;
+  else if (id === 'pracIn') pracDraft = e.target.value;
+  else if (id === 'search' && !e.isComposing) { mineSearch = e.target.value; renderMineList(); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'wordIn') { const v = e.target.value.trim(); if (v) openWord(v, ''); } });
+$('#btnSettings').onclick = openSettings;
+$('#syncBadge').onclick = () => { flush(); pull(true); };
+window.addEventListener('online', () => { flush(); pull(true); if (tab === 'translate' && trMode === 'input') renderTranslate(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { pull(); flush(); if (tab === 'review') renderReview(); } });
+setInterval(() => { if (Q.length) flush(); }, 30000);
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+/* 從其他 App 分享進來、桌面長按捷徑 */
+(function handleLaunch() {
+  const qs = new URLSearchParams(location.search);
+  const shared = [qs.get('title'), qs.get('text'), qs.get('url')].filter(Boolean).join(' ').trim();
+  if (qs.get('go') === 'review') tab = 'review';
+  if (qs.get('go') === 'translate') { tab = 'translate'; trSeg = 'zh'; }
+  if (shared) {
+    tab = 'translate';
+    const hasZh = /[一-鿿]/.test(shared), hasEn = /[A-Za-z]{2,}/.test(shared);
+    if (hasEn && !(hasZh && shared.replace(/[^一-鿿]/g, '').length > shared.replace(/[^A-Za-z]/g, '').length)) { trSeg = 'clip'; clipDraft.en = shared; }
+    else { trSeg = 'zh'; zhDraft = shared; }
+  }
+  if (location.search) history.replaceState(null, '', location.pathname);
+})();
+
+render();
+if (!S.gasUrl) openSettings(); else { pull(true); flush(); }
+if (tab === 'translate' && trSeg === 'zh' && zhDraft && S.gasUrl) doTranslate();
+</script>
+</body>
+</html>

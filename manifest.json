@@ -1,0 +1,22 @@
+{
+  "name": "English Thinking",
+  "short_name": "English Thinking",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "中翻英", "short_name": "中翻英", "url": "./?go=translate", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "今日複習", "short_name": "今日複習", "url": "./?go=review", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ],
+  "share_target": {
+    "action": "./",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
+}
