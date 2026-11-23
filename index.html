@@ -111,6 +111,59 @@
   a.btn{text-decoration:none}
   .toprow{margin-bottom:14px}
   .toprow .btn{padding:13px 8px}
+
+  /* v1.2.5 精簡版面：只縮留白和按鈕，不縮重要文字 */
+  header{padding:8px 14px;padding-top:calc(8px + env(safe-area-inset-top))}
+  header h1{font-size:18px}
+  .iconbtn{font-size:22px;padding:2px 4px}
+  main{padding:10px 12px 84px}
+  nav button{padding:5px 0 7px;font-size:14px}
+  nav button .ic{font-size:20px}
+  .card{padding:12px;margin-bottom:10px;border-radius:14px}
+  .seg{padding:3px;margin-bottom:10px}
+  .seg button{padding:7px}
+  .seg5 button{padding:7px 2px}
+  textarea,input,select{padding:10px}
+  textarea{min-height:64px}
+  .zhin{min-height:64px;height:72px}
+  .inrow{display:flex;gap:8px;align-items:stretch}
+  .trbtn{width:auto;flex:0 0 80px;padding:0 6px}
+  .xbtn{width:32px;height:32px;font-size:15px;top:6px;right:6px}
+  .inwrap textarea{padding-right:44px}
+  .btn{padding:11px 14px;font-size:18px}
+  .toprow{margin-bottom:8px}
+  .toprow .btn{padding:10px 6px}
+  .line{padding:6px 0}
+  .spk{width:40px;height:40px;flex:0 0 40px;font-size:20px}
+  label.f{margin:10px 0 4px}
+  .tip{margin-top:4px;padding:4px 10px}
+  .empty{padding:18px 8px}
+  .rev-card{padding:16px 14px}
+  .rev-zh{margin:8px 0 12px}
+  .rev-ans{padding:10px 12px;margin-bottom:10px}
+  .item{padding:10px 12px;margin-bottom:8px}
+  .dhead{margin:10px 2px 6px}
+  .notice{padding:8px 10px;margin-bottom:8px}
+  #toast{bottom:76px}
+  /* v1.2.6 清單排版（方案 A：英文在上） */
+  .li{display:flex;gap:8px;align-items:flex-start;padding:10px 12px}
+  .li .tx{flex:1;min-width:0}
+  .li-en{font-size:20px;font-weight:800;line-height:1.3;color:var(--ink)}
+  .li-kk{font-size:15px;font-weight:400;color:var(--ink2)}
+  .li-zh{font-size:17px;color:#222;margin-top:2px}
+  .li-alt{font-size:15px;color:#222;margin-top:2px}
+  .li-meta{font-size:14px;color:var(--blue-d);margin-top:4px}
+  .li .spk{width:38px;height:38px;flex:0 0 38px;font-size:18px}
+  /* v1.2.7 造句情境 */
+  .scene-in{font-size:16px;padding:9px 10px}
+  .expl{font-size:15px;line-height:1.6;background:#fff6d6;border-radius:10px;padding:8px 10px;margin-top:6px;white-space:pre-line;color:#2a2000}
+  .overall{font-size:15px;line-height:1.6;background:var(--green-l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+  .demo{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+  .demo .who{flex:0 0 36px;font-size:13px;font-weight:800;text-align:center;border-radius:8px;padding:2px 0;margin-top:3px}
+  .demo.me .who{background:var(--blue-l);color:var(--blue-d)}
+  .demo.other .who{background:#eef1f7;color:var(--ink)}
+  .demo .txt{flex:1}
+  .den{font-size:17px;font-weight:700}
 </style>
 </head>
 <body>
@@ -133,7 +186,7 @@
 
 <script>
 'use strict';
-const APP_VERSION = '1.2.3';
+const APP_VERSION = '1.2.7';
 
 /* ===== 基本工具 ===== */
 const LS = { data: 'et:data', queue: 'et:queue', set: 'et:settings', plan: 'et:plan', lastPull: 'et:lastPull', pending: 'et:pending' };
@@ -187,7 +240,7 @@ let zhDraft = '';
 let trMode = 'input';      // input | match | result
 let tr = null, mt = null;
 let clipDraft = { en: '', zh: '' }, clip = null;
-let pracDraft = '', pracPattern = '', prac = null;
+let pracDraft = '', pracPattern = '', pracScene = '', prac = null;
 let busy = false;
 let revealed = false;
 
@@ -481,15 +534,17 @@ function renderTranslate() {
 
 function zhView() {
   let h = `<div class="card">
-    <div class="inwrap">
-      <textarea id="zhIn" placeholder="輸入你想說的中文，例如：我正要出門上班">${esc(zhDraft)}</textarea>
-      <button class="xbtn" id="btnClear" aria-label="清除">✕</button>
+    <div class="inrow">
+      <div class="inwrap" style="flex:1">
+        <textarea id="zhIn" class="zhin" rows="2" placeholder="輸入想說的中文">${esc(zhDraft)}</textarea>
+        <button class="xbtn" id="btnClear" aria-label="清除">✕</button>
+      </div>
+      <button class="btn trbtn" id="btnTr" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span>' : '翻譯'}</button>
     </div>
-    <button class="btn" id="btnTr" style="margin-top:12px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 翻譯中' : '翻譯'}</button>
   </div>`;
   if (trMode === 'match' && mt && D.sentences[mt.id]) h += matchCard();
   else if (trMode === 'result' && tr) h += resultCard();
-  else if (!P.length) h += `<div class="empty">想到什麼中文就輸入<br><span class="small">翻成簡單的美式口語 → 儲存 → 每天複習</span></div>`;
+  else if (!P.length) h += `<div class="empty small">想到什麼中文就輸入 → 翻成簡單的美式口語 → 儲存 → 每天複習</div>`;
   if (P.length && trMode === 'input') {
     h += `<div class="card"><div style="font-weight:800;margin-bottom:4px">待翻譯（${P.length}）</div>`;
     P.forEach(p => {
@@ -533,8 +588,7 @@ function resultCard() {
       <button class="btn orange" id="btnSimpler" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span>' : '太難了'}</button>
     </div>`;
   if (dup) h += `<div class="notice">這句英文你已經存過（想到 ${dup.hits} 次）。按儲存會合併成同一張卡，並記下這次的中文說法。</div>`;
-  h += `<div class="line"><div class="txt">${enHtml(tr.main)}</div>${spkBtn(tr.main)}</div>${tipHtml(tr.tip)}
-    <div class="sub small" style="margin-top:6px">點英文單字可以查字典、存單字</div>`;
+  h += `<div class="line"><div class="txt">${enHtml(tr.main)}</div>${spkBtn(tr.main)}</div>${tipHtml(tr.tip)}`;
   if (tr.alt) {
     if (!tr.showAlt) h += `<button class="btn link" id="btnAlt" style="padding-left:0">也可以說 ▾</button>`;
     else h += `<div class="line" style="border-top:1px solid var(--line);margin-top:8px">
@@ -545,10 +599,10 @@ function resultCard() {
     const p = tr.history[tr.history.length - 1];
     h += `<div class="sub" style="margin-top:10px">上一版：${esc(p.main)} <button class="btn link" id="btnPrev" style="width:auto;padding:4px">改用上一版</button></div>`;
   }
-  if (!dup) h += `<label class="f">母句型（可修改，沒有就留空）</label>
+  if (!dup) h += `<label class="f">母句型（可改，沒有就留空）</label>
           <input id="patIn" value="${esc(tr.pattern)}" placeholder="例如：I'm heading to ___.">`;
-  h += `<div class="sub small" style="margin-top:10px">「我會了」：存進熟悉區，不排複習　「太難了」：重翻成更簡單的說法</div>
-  </div>`;
+  if (mains().length < 5) h += `<div class="sub small" style="margin-top:8px">點英文單字可查字典｜我會了＝存進熟悉區｜太難了＝重翻更簡單</div>`;
+  h += `</div>`;
   return h;
 }
 
@@ -703,28 +757,39 @@ function saveClip(known) {
 /* ----- 造句 ----- */
 function pracView() {
   let h = `<div class="card">
-    ${pracPattern ? `<div style="margin-bottom:10px"><span class="tag">句型：${esc(pracPattern)}</span> <button class="btn link" id="btnPracPatX" style="width:auto;padding:2px 6px">✕ 不用句型</button></div>` : ''}
-    <div class="inwrap"><textarea id="pracIn" placeholder="${pracPattern ? '用這個句型寫幾句英文' : '用英文寫你想說的話，可以好幾句。也可以按鍵盤的麥克風用講的'}">${esc(pracDraft)}</textarea>
+    ${pracPattern ? `<div style="margin-bottom:8px"><span class="tag">句型：${esc(pracPattern)}</span> <button class="btn link" id="btnPracPatX" style="width:auto;padding:2px 6px">✕ 不用句型</button></div>` : ''}
+    <input id="pracScene" class="scene-in" value="${esc(pracScene)}" placeholder="情境（可不填）：例如 在公司招待客人喝咖啡">
+    <div class="inwrap" style="margin-top:8px"><textarea id="pracIn" placeholder="${pracPattern ? '用這個句型寫幾句英文' : '用英文寫你想說的話，可以好幾句。也可以按鍵盤的麥克風用講的'}">${esc(pracDraft)}</textarea>
       <button class="xbtn" id="btnPracClear" aria-label="清除">✕</button></div>
-    <button class="btn" id="btnPrac" style="margin-top:12px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 檢查中' : '幫我檢查'}</button>
-    <div class="sub small" style="margin-top:8px">外國人聽得懂就算對，只改會造成誤會的地方</div>
+    <button class="btn" id="btnPrac" style="margin-top:10px" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin"></span> 檢查中' : '幫我檢查'}</button>
+    <div class="sub small" style="margin-top:6px">外國人聽得懂就算對，只改會造成誤會的地方</div>
   </div>`;
   if (!prac) return h;
   h += `<div class="card"><div class="row toprow"><button class="btn green" id="btnPracSave" style="flex:1.4">儲存勾選的句子</button><button class="btn sec" id="btnPracAgain">再寫一次</button></div>`;
+  const ov = prac.overall || {};
+  if (ov.good || ov.focus) h += `<div class="overall">${ov.good ? `<div>👍 ${esc(ov.good)}</div>` : ''}${ov.focus ? `<div>🎯 ${esc(ov.focus)}</div>` : ''}</div>`;
   prac.items.forEach((it, i) => {
     const icon = it.status === 'ok' ? '<span class="tag g">✓ 自然，可以用</span>'
       : it.status === 'grammar' ? '<span class="tag o">✎ 文法要改</span>' : '<span class="tag">✎ 可以更自然</span>';
-    const en = it.fixed || it.original;
+    const en = it.fixed || it.clean || it.original;
     h += `<div class="pitem">
       <div>${icon}</div>
-      ${it.fixed ? `<div class="sub" style="margin-top:6px">你寫的：${esc(it.original)}</div>` : ''}
-      <div class="line" style="padding:6px 0"><div class="txt">${enHtml(en, 'en2')}</div>${spkBtn(en)}</div>
-      ${it.explain ? `<div class="tip">✎ ${esc(it.explain)}</div>` : ''}
+      ${it.fixed ? `<div class="sub small" style="margin-top:6px">你寫的：${esc(it.original)}</div>` : ''}
+      <div class="line" style="padding:4px 0"><div class="txt">${enHtml(en, 'en2')}</div>${spkBtn(en)}</div>
       <div class="sub">${esc(it.zh)}</div>
-      <label class="tap" style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" class="chk" data-pi="${i}" ${it.saved ? 'disabled checked' : ''}> ${it.saved ? '已存' : '存進句子庫'}</label>
+      ${it.explain ? `<div class="expl"><b>錯在哪裡</b>\n${esc(it.explain)}</div>` : ''}
+      ${it.also ? `<div class="sub small" style="margin-top:4px">也可以說：${esc(it.also)}</div>` : ''}
+      ${it.pattern ? `<div class="sub small" style="margin-top:2px">句型：${esc(it.pattern)}</div>` : ''}
+      <label class="tap" style="display:flex;align-items:center;gap:8px;margin-top:6px"><input type="checkbox" class="chk" data-pi="${i}" ${it.saved ? 'disabled checked' : ''}> ${it.saved ? '已存' : '存進句子庫'}</label>
     </div>`;
   });
   h += `</div>`;
+  if (prac.demo && prac.demo.length) {
+    h += `<div class="card"><div class="wsec" style="margin-top:0">完整示範：${esc(prac.scene || '')}</div>` +
+      prac.demo.map(d => `<div class="demo ${d.who}"><span class="who">${d.who === 'me' ? '我' : '對方'}</span>
+        <div class="txt"><div class="den">${esc(d.en)}</div><div class="sub small">${esc(d.zh)}</div></div>${spkBtn(d.en)}</div>`).join('') +
+      `<button class="btn green" id="btnDemoSave" style="margin-top:10px" ${prac.demoSaved ? 'disabled' : ''}>${prac.demoSaved ? '已存' : '整段存起來（我說的句子進句子庫）'}</button></div>`;
+  }
   return h;
 }
 
@@ -735,13 +800,13 @@ function topWeak(days = 30, min = 2) {
 }
 
 async function doPractice() {
-  pracDraft = $('#pracIn').value.trim();
+  pracDraft = $('#pracIn').value.trim(); pracScene = $('#pracScene').value.trim();
   if (!pracDraft) { toast('請先寫幾句英文'); return; }
   if (!S.gasUrl || !S.token) { toast('請先完成設定'); openSettings(); return; }
   setBusy(true);
   try {
-    const j = await api('practice', { text: pracDraft, provider: S.provider, level: S.level, weak: topWeak().slice(0, 3).map(w => w.tag), pattern: pracPattern });
-    prac = { items: j.items };
+    const j = await api('practice', { text: pracDraft, scene: pracScene, provider: S.provider, level: S.level, weak: topWeak().slice(0, 3).map(w => w.tag), pattern: pracPattern });
+    prac = { items: j.items, overall: j.overall || {}, demo: j.demo || [], scene: pracScene };
     const tags = []; j.items.forEach(it => tags.push(...it.tags));
     logAdd('practice', { n: j.items.length, ok: j.items.filter(it => it.status === 'ok').length, tags });
   } catch (e) { toast(e.message, 4000); }
@@ -755,11 +820,12 @@ function savePractice() {
   let n = 0;
   picks.forEach(i => {
     const it = prac.items[i];
-    const en = it.fixed || it.original;
+    const en = it.fixed || it.clean || it.original;
     const dup = findByEn(en);
     if (dup) addHit(dup, it.zh, false);
     else {
-      const s = newSentence(it.zh, en, '', pat ? pat.id : '', '', false, 'practice');
+      const pid = pat ? pat.id : resolvePattern(it.pattern || '', en);
+      const s = newSentence(it.zh, en, '', pid, it.tip || '', false, 'practice');
       Object.assign(s, { original: it.original, note: it.explain });
       put('sentences', s); prefetchAudio(s.en);
     }
@@ -789,6 +855,24 @@ function guardResolve(save) {
   if (save) { if (k === 'tr') saveTranslation(false); else if (k === 'clip') saveClip(false); }
   else { tr = null; mt = null; trMode = 'input'; clip = null; }
   if (next) next();
+}
+
+function saveDemo() {
+  if (!prac || !prac.demo.length || prac.demoSaved) return;
+  const sid = 'sc' + uid();
+  let n = 0;
+  prac.demo.forEach(d => {
+    if (d.who !== 'me') return;
+    const dup = findByEn(d.en);
+    if (dup) { addHit(dup, d.zh, false); return; }
+    const s = newSentence(d.zh, d.en, '', '', '', false, 'practice');
+    Object.assign(s, { scene_id: sid, note: '情境：' + (prac.scene || '') });
+    put('sentences', s); prefetchAudio(s.en); n++;
+  });
+  logAdd('scene', { id: sid, title: prac.scene || '', lines: prac.demo });
+  prac.demoSaved = true;
+  renderTranslate();
+  toast(`已存整段情境，${n} 句進句子庫`);
 }
 
 /* ===== 單字 ===== */
@@ -912,15 +996,20 @@ function renderMine() {
   renderMineList();
 }
 
+function metaLine(parts) { return `<div class="li-meta">${parts.filter(Boolean).map(esc).join('・')}</div>`; }
+function dueText(x) { return x.status === 'known' ? '熟悉' : (x.next_review ? md(x.next_review) + ' 複習' : ''); }
+
 function sentenceItem(s) {
   const p = s.pattern_id && D.patterns[s.pattern_id];
   const vars = variantsOf(s);
-  return `<div class="item tap" data-edit="${s.id}">
-    <div class="zh">${esc(s.zh)}</div>
-    ${vars.length ? `<div class="sub small">也說：${esc(vars.join('／'))}</div>` : ''}
-    <div class="en2">${esc(s.en)}</div>
-    ${altsOf(s.id).map(a => `<div class="sub">也可以說：${esc(a.en)}</div>`).join('')}
-    <div class="meta">${statusTag(s)}${s.hits > 1 ? `<span class="tag o">想到 ${s.hits} 次</span>` : ''}${s.source && s.source !== 'single' ? `<span class="tag">${SRC_ZH[s.source] || ''}</span>` : ''}${p && p.deleted !== '1' ? `<span class="tag">${esc(p.pattern)}</span>` : ''}</div>
+  return `<div class="item tap li" data-edit="${s.id}">
+    <div class="tx">
+      <div class="li-en">${esc(s.en)}</div>
+      <div class="li-zh">${esc(s.zh)}</div>
+      ${altsOf(s.id).map(a => `<div class="li-alt">也可以說：${esc(a.en)}</div>`).join('')}
+      ${vars.length ? `<div class="li-alt">也說：${esc(vars.join('／'))}</div>` : ''}
+      ${metaLine([dueText(s), s.hits > 1 ? `想到 ${s.hits} 次` : '', s.source && s.source !== 'single' ? SRC_ZH[s.source] : '', p && p.deleted !== '1' ? '句型 ' + p.pattern : ''])}
+    </div>${spkBtn(s.en)}
   </div>`;
 }
 
@@ -930,7 +1019,7 @@ function byDate(list, itemFn) {
   list.forEach(x => { const d = x.created.slice(0, 10); counts[d] = (counts[d] || 0) + 1; });
   list.forEach(x => {
     const d = x.created.slice(0, 10);
-    if (d !== day) { day = d; h += `<div class="dhead">${esc(mdw(d))}・${counts[d]}</div>`; }
+    if (d !== day) { day = d; h += `<div class="dhead">${esc(mdw(d))}・${counts[d]} ${mineSeg === 'word' ? '個' : '句'}</div>`; }
     h += itemFn(x);
   });
   return h;
@@ -959,10 +1048,12 @@ function renderMineList() {
     let list = words().sort((a, b) => b.created.localeCompare(a.created));
     if (q) list = list.filter(w => (w.word + ' ' + w.context_zh).toLowerCase().includes(q));
     if (!list.length) h = `<div class="empty">還沒有單字<br><span class="small">在任何英文句子上點一下單字，就能查字典、存單字</span></div>`;
-    else h = byDate(list, w => `<div class="item tap" data-word="${w.id}">
-        <div class="row" style="align-items:baseline"><div class="en2" style="flex:0 0 auto">${esc(w.word)}</div><div class="sub small">${w.kk ? '[' + esc(w.kk) + ']' : ''}</div></div>
-        <div class="zh"><span class="pos">${esc(w.context_pos)}</span> ${esc(w.context_zh)}</div>
-        <div class="meta">${statusTag(w)}${w.hits > 1 ? `<span class="tag o">遇到 ${w.hits} 次</span>` : ''}</div></div>`);
+    else h = byDate(list, w => `<div class="item tap li" data-word="${w.id}">
+        <div class="tx">
+          <div class="li-en">${esc(w.word)} <span class="li-kk">${w.kk ? '[' + esc(w.kk) + ']' : ''}</span></div>
+          <div class="li-zh"><span class="pos">${esc(w.context_pos)}</span> ${esc(w.context_zh)}</div>
+          ${metaLine([dueText(w), w.hits > 1 ? `遇到 ${w.hits} 次` : ''])}
+        </div>${spkBtn(w.word)}</div>`);
   } else {
     h = statsView();
   }
@@ -1365,6 +1456,7 @@ document.addEventListener('click', e => {
     case 'btnClipClear': return guard(() => { clip = null; clipDraft = { en: '', zh: '' }; renderTranslate(); $('#clipEn').focus(); });
     case 'btnPrac': return busy ? null : doPractice();
     case 'btnPracSave': return savePractice();
+    case 'btnDemoSave': return saveDemo();
     case 'btnPracAgain': case 'btnPracClear': prac = null; pracDraft = ''; renderTranslate(); $('#pracIn').focus(); return;
     case 'btnPracPatX': pracPattern = ''; return renderTranslate();
     case 'btnWordLookup': { const v = $('#wordIn').value.trim(); if (v) openWord(v, ''); return; }
@@ -1382,6 +1474,7 @@ document.addEventListener('input', e => {
   else if (id === 'clipEn') clipDraft.en = e.target.value;
   else if (id === 'clipZh') clipDraft.zh = e.target.value;
   else if (id === 'pracIn') pracDraft = e.target.value;
+  else if (id === 'pracScene') pracScene = e.target.value;
   else if (id === 'search' && !e.isComposing) { mineSearch = e.target.value; renderMineList(); }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'wordIn') { const v = e.target.value.trim(); if (v) openWord(v, ''); } });
