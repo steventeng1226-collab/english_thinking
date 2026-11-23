@@ -1,5 +1,5 @@
-// English Thinking service worker v1.2.3
-const CACHE = 'et-v1.2.3';
+// English Thinking service worker v1.2.7
+const CACHE = 'et-v1.2.7';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
